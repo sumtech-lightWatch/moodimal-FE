@@ -1,15 +1,17 @@
 <template>
     <v-row 
         no-gutters justify="center" 
-        class="text-title | mb-4 | justify-center"
+        class="text-title | mb-2"
     >
-        <v-col>{{ title }}</v-col>
+        <v-col class="text-center">
+            {{ title }}
+        </v-col>
     </v-row>
     <v-row 
         no-gutters justify="center"
-        class="text-subtitle | mb-10 | justify-center"
+        class="text-subtitle | mb-9"
     >
-        <v-col v-html="props.desc"></v-col>
+        <v-col class="text-center" v-html="props.desc"></v-col>
     </v-row>
 </template>
 
