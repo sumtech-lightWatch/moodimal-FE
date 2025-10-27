@@ -9,6 +9,18 @@
             
         </v-row>
 
+        <v-row
+            no-gutters
+            class="justify-center | align-center | text-center | mt-6"
+        >
+            <v-col cols=12 class="card-title">
+                침착한 침팬치
+            </v-col>
+            <v-col cols="12" class="card-desc | mt-3">
+                침착한 침팬지는 무리 속에서 드물게 발견되는 안정적인 개체입니다.
+            </v-col>
+        </v-row>
+
         <!-- <v-row 
             v-if="props.loading" 
             no-gutters justify="center" align-content="center" 
@@ -68,6 +80,19 @@ onUnmounted(() => {
     border-radius: 16px; 
     background-color: #F2F2F2;
     justify-content: center; justify-items: center;
+}
+
+.card-title {
+    font-family: "Bagel Fat One", system-ui;
+    font-size: 24px;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.card-desc {
+    font-size: 15px;
+    font-weight: 300;
+    letter-spacing: -3%;
 }
 
 </style>
