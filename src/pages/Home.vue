@@ -14,15 +14,18 @@
     </v-row>
 
 
-    <v-row no-gutters justify="start">
+    <!-- <v-row no-gutters justify="start">
       <v-label>단과대를 선택해주세요</v-label>
-    </v-row>
+    </v-row> -->
     <v-row no-gutters justify="center" class="mt-1">
-      <v-select
+      <v-file-input
         variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
+        label="SNS 캡처 화면을 업로드 해주세요"
         :items="collegeItem"
         v-model="college"
-      ></v-select>
+        prepend-icon=""
+        append-inner-icon="mdi-camera"
+      ></v-file-input>
     </v-row>
     
     <v-row 
