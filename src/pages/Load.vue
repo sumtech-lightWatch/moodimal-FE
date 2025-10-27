@@ -4,28 +4,28 @@
       :title="title" :desc="desc"
     ></SubTitle>
 
-    <v-row no-gutters class="justify-center">
-      <v-col no-gutters
-          style="
-            width: 308px; min-width: 308px; max-width: 308px; 
-            height: 420px; min-height: 412px; max-height: 420px; 
-          "
-        >
-
-          <!-- <v-row 
-            v-if="loading" 
-            no-gutters justify="center" align-content="center" 
-            style="min-height: 300px; min-width: 300px;"
-          >
-            <v-progress-circular
-              indeterminate
-              color="#FF794C"
-              size="64"
-              class="progress-circular"
-            ></v-progress-circular>
-          </v-row> -->
-          <ImageFrame :result="result" :loading="loading"></ImageFrame>
-
+    <v-row no-gutters class="justify-center | mt-9">
+      <v-col no-gutters>
+          <!-- 이미지 스캔 애니메이션 -->
+          <div class="image-scan-container">
+            <img 
+              src="https://placehold.co/600x400" 
+              alt="Sample Image"
+              class="scan-image"
+            />
+            <div class="scan-line"></div>
+            <div class="scan-overlay"></div>
+          </div>
+      </v-col>
+    </v-row>
+    
+    <v-row no-gutters class="justify-center | mt-6">
+      <v-col class="info-text-container">
+        <transition name="slide-fade" mode="out-in">
+          <div :key="currentTextIndex" class="info-text">
+            {{ infoTexts[currentTextIndex] }}
+          </div>
+        </transition>
       </v-col>
     </v-row>
 
@@ -81,17 +81,28 @@ import { onMounted, onUnmounted, onBeforeMount, ref, nextTick} from "vue";
 
 import axios from "axios";
 
-import html2canvas from "html2canvas";
 import Util from "@/common/Util.js"
 
 import BoxContainer from "@/components/BoxContainer.vue";
-import ImageFrame from "@/components/ImageFrame.vue";
 
 const emit = defineEmits(['restart-analyze']);
 
-const title = '짜잔! 결과 이미지가 나왔어요.'
-const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
-const ourInfo = '안녕하세요, 둥지동지를 제작한 예술공학부 동아리 칸타르 소속의 <b><칸타르동방구함위원회></b> 입니다.<br><br>둥지동지는 룸메이트를 빠르고 편하게 구할 수 있게 하기 위해 기획한 프로젝트입니다.<br><br>제작에 도움을 주신 예공 친구들에게 감사드리며, 모두 좋은 룸메이트를 찾으시길 바랍니다.<br>새해 복 많이 받으세요!'
+const title = '이미지 분석 중...'
+const desc = '당신의 SNS 무디멀 유형은?<br>SNS 이미지를 분석하고 있어요.'
+
+// 순환할 텍스트 배열
+const infoTexts = ref([
+  "침착한 침팬지는 무리 속에서 드물게 발견되는 안정적인 개체입니다...",
+  "당신의 SNS 패턴을 분석하고 있습니다...",
+  "게시물의 감정 톤을 파악하고 있습니다...",
+  "해시태그 사용 패턴을 분석 중입니다...",
+  "당신만의 특별한 스타일을 찾고 있습니다...",
+  "거의 다 됐어요! 조금만 기다려주세요...",
+  "분석이 완료되었습니다!"
+]);
+
+const currentTextIndex = ref(0);
+let textInterval = null;
 
 const dialog = ref({
   title: '',
@@ -101,15 +112,13 @@ const dialog = ref({
 });
 
 const loading = ref(true); // 로딩 상태 관리
-const captureRef = ref(null); // 캡처할 컴포넌트의 참조
-const capturedImage = ref(''); // 캡처된 이미지의 URL 저장
 
 const toastMessage = ref("");
 const showToast = ref(false); 
 
 const result = ref({
-  title:  null,           // 기숙사 숫자 int
-  img: "",              // 생성된 이미지 URL
+  title:  null,
+  img: "",
 });
 
 const parsedSurvey = ref(null)
@@ -121,11 +130,27 @@ onBeforeMount(() => {
 
 onMounted(async () => {
   loadSurveyData();
-  await nextTick(); // DOM이 렌더링 완료된 후 실행
+  await nextTick();
+  
+  // 텍스트 전환 시작 (2초마다)
+  textInterval = setInterval(() => {
+    currentTextIndex.value = (currentTextIndex.value + 1) % infoTexts.value.length;
+  }, 2000);
+  
+  // 로딩 종료 시간 설정 (필요시 조정)
+  setTimeout(() => {
+    loading.value = false;
+    if (textInterval) {
+      clearInterval(textInterval);
+    }
+  }, 16000); // 텍스트 8개 * 2초
 });
 
 onUnmounted(() => {
-
+  // 인터벌 정리
+  if (textInterval) {
+    clearInterval(textInterval);
+  }
 })
 
 // ----- 함수 정의 ----- //
@@ -143,20 +168,6 @@ function loadSurveyData() {
   }
 }
 
-// 다시 시작
-function handleClickRestartBtn() {
-  openDialog(
-    '설문 다시하기',
-    '설문을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.', 
-    () => {
-        console.log("emitting restart-analyze event.");
-        localStorage.setItem('surveyId', null);
-        localStorage.setItem('appInitialized', 'false');
-        emit('restart-analyze'); 
-      }
-    )
-}
-
 // 다이얼로그 유틸
 function openDialog(title, text, onConfirm) {
   dialog.value.title = title;
@@ -168,7 +179,7 @@ function openDialog(title, text, onConfirm) {
 // 스낵바 유틸
 function handleSnackbarClose(value) {
   if (!value) {
-    showToast.value = false; // 상태를 false로 리셋
+    showToast.value = false;
     console.log("Snackbar 닫힘");
   }
 }
@@ -176,32 +187,6 @@ function handleSnackbarClose(value) {
 </script>
 
 <style scoped>
-.text-btn {
-  color: #FFF;
-  text-align: center;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-.w-text-btn {
-  color: #000;
-  text-align: center;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  letter-spacing: -0.5px;
-}
-
-.hidden-capture-area {
-  position: absolute;
-  top: -99999px;
-  left: -99999px;
-  opacity: 1;
-  pointer-events: none;
-}
-
 .text-title {
   font-size: 19.5px;
   font-style: normal;
@@ -219,41 +204,97 @@ function handleSnackbarClose(value) {
   color: #404040;
 }
 
-.margin-top-96 {
-  margin-top: 56px;
-}
-
-.text-label-container {
-  margin-top: 56px;
-  justify-content: center;
+.info-text-container {
+  margin-left: 36px;
+  margin-right: 36px;
+  min-height: 60px;
+  display: flex;
   align-items: center;
-  align-content: center;
-  text-align: center;
+  justify-content: center;
 }
 
-.text-label {
-  color: #B1B1B1;
-  font-size: 10px;
-  font-style: normal;
+.info-text {
+  font-size: 15px;
   font-weight: 400;
-  line-height: normal;
   letter-spacing: -0.3px;
+  text-align: center;
+  color: #FF794C;
+  line-height: 1.5;
 }
 
-.link-label {
-  text-decoration: underline;
-  font-size: 15x;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: -0.4px;
-  color: #404040;
-  cursor: pointer;
+/* 텍스트 전환 애니메이션 */
+.slide-fade-enter-active {
+  transition: all 0.5s ease;
 }
 
-.chip-text {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
+.slide-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-fade-enter-from {
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+/* 이미지 스캔 애니메이션 스타일 */
+.image-scan-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.scan-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    #FF794C 50%,
+    transparent
+  );
+  box-shadow: 0 0 20px #FF794C, 0 0 40px #FF794C;
+  animation: scan 5s linear infinite;
+  z-index: 2;
+}
+
+.scan-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 121, 76, 0.1) 0%,
+    transparent 50%,
+    transparent 100%
+  );
+  animation: scan 5s linear infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(400px);
+  }
 }
 </style>
