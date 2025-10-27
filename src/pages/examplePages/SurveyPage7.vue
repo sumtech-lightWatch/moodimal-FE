@@ -13,7 +13,7 @@
           :class="{'v-chip--selected': selectTag.includes(tag.value)}"
           class="custom-chip | mb-2 | mr-2 | pr-3 | pl-3"
           :style="{ backgroundColor: 'white' }"
-          :color="selectTag.includes(tag.value) ? '#FF5858' : '#B1B1B1'"
+          :color="selectTag.includes(tag.value) ? '#FF794C' : '#B1B1B1'"
           variant="outlined"
           @click="handleClickTag(tag.value)"
         >

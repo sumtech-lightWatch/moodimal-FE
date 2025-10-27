@@ -10,7 +10,7 @@
     >
       <v-progress-circular
         indeterminate
-        color="#FF5858"
+        color="#FF794C"
         size="64"
         class="progress-circular"
       ></v-progress-circular>
@@ -35,7 +35,7 @@
         prepend-icon="mdi-arrow-up"
         append-icon="mdi-arrow-up"
         variant="text"
-        color="#FF5858"
+        color="#FF794C"
         class="chip-text"
       >
         꾹 눌러 저장하기
@@ -54,7 +54,7 @@
     <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-2">
       <v-btn 
         @click="handleClickFixBtn"
-        color="#FF5858" rounded="xl" width="100%"
+        color="#FF794C" rounded="xl" width="100%"
         class="text-btn"
       >
         설문 수정하기
@@ -87,7 +87,7 @@
     <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14">
       <v-btn 
         @click="handleClickRestartBtn"
-        color="#FF5858" rounded="xl" width="100%"
+        color="#FF794C" rounded="xl" width="100%"
         class="text-btn"
       >
         처음부터 다시하기
@@ -139,8 +139,8 @@
       <v-card-text class="text-subtitle | pl-4 | pr-4 | pt-2 | pb-3" v-html="dialog.text"></v-card-text>
       <template v-slot:actions>
           <v-row no-gutters justify="end">
-              <v-btn color="#FF5858" width="25%" rounded="xl" variant="outlined" @click="dialog.dialogActive = false">닫기</v-btn>
-              <v-btn v-if="dialog.okButton" color="#FF5858" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
+              <v-btn color="#FF794C" width="25%" rounded="xl" variant="outlined" @click="dialog.dialogActive = false">닫기</v-btn>
+              <v-btn v-if="dialog.okButton" color="#FF794C" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
           </v-row>
       </template>
     </v-card>
@@ -260,7 +260,7 @@ function loadSurveyData() {
   
     // 데이터 매핑 및 할당
     survey.value.dorm = parsedSurvey.value.dorm;
-    survey.value.color = colorMap[survey.value.dorm] || '#FF5858';
+    survey.value.color = colorMap[survey.value.dorm] || '#FF794C';
     survey.value.birth = parsedSurvey.value.birth
       ? parsedSurvey.value.birth === 0
         ? "비공개"

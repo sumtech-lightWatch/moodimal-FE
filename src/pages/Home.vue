@@ -3,8 +3,8 @@
     <v-row no-gutters justify="center" class="margin-88 | margin-top-100">
       <v-img 
       src="@/assets/logo.svg"
-      :width="207" :height="71"
-      min-width="207px" min-height="72px" 
+      :width="240" :height="80"
+      min-width="240px" min-height="80px" 
       ></v-img>
     </v-row>
     <v-row no-gutters justify="center" class="margin-88px | mt-2">
@@ -19,7 +19,7 @@
     </v-row>
     <v-row no-gutters justify="center" class="mt-1">
       <v-select
-        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF5858" color="#FF5858" item-color="#FF5858"
+        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
         :items="collegeItem"
         v-model="college"
       ></v-select>
@@ -48,10 +48,10 @@
     >
       <v-btn 
         @click="handleClickStartBtn"
-        variant="flat" color="#FF6161" rounded="xl" size="large" width="80%" height="32px"
+        variant="flat" color="#FF794C" rounded="xl" size="large" width="80%" height="32px"
         class="text-small-btn"
       >
-        직접 체크하여 제작
+        결과확인하기
       </v-btn>
     </v-row>
   </v-container>
@@ -121,11 +121,11 @@ function handleClickStartBtn() {
 
 /* 토글 버튼 아이콘 색상 */
 :deep(.v-input__control .v-icon) {
-  color: #FF5858 !important; /* 아이콘 색상 */
+  color: #FF794C !important; /* 아이콘 색상 */
 }
 
 :deep(.v-label) {
-  color: #000000;
+  color: #1B1818;
   font-style: normal;
   font-weight: 600;
   font-size: 14px;
@@ -190,7 +190,7 @@ function handleClickStartBtn() {
 
 .card-title-text {
   padding-left: 8px;
-  color: #000000 !important; /* 아이콘 색상 */
+  color: #1B1818 !important; /* 아이콘 색상 */
   text-align: center;
   font-size: 16px;
   font-style: normal;

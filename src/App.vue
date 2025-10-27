@@ -4,15 +4,15 @@
       <v-row class="align-center | justify-space-between | padding-32 | padding-top-56 | padding-bottom-16">
         <!-- 로고 -->
         <v-col cols="auto">
-          <v-row class="align-center | pl-3">
+          <v-row class="align-center | pl-2">
             <v-img 
             src="@/assets/logo.svg"
-            :width="84" :height="30"
-            min-width="84px" min-height="30px" 
+            :width="112" :height="36"
+            min-width="112px" min-height="36px" 
             ></v-img>
           </v-row>
         </v-col>
-        <v-divider class="margin-top-16" />
+        <v-divider class="margin-top-8" />
       </v-row>
     </v-app-bar>
 
@@ -338,8 +338,8 @@ const updateSurvey = async (updates) => {
 
 <style scoped>
 
-.margin-top-16 {
-  margin-top: 16px;
+.margin-top-8 {
+  margin-top: 8px;
 }
 
 .padding-32 {

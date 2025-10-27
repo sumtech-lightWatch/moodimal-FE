@@ -8,7 +8,7 @@
     </v-row>
     <v-row no-gutters justify="center" class="mt-1">
       <v-select
-        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF5858" color="#FF5858" item-color="#FF5858" 
+        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C" 
         :items="dormItem"
         placeholder="기숙사"
         v-model="dorm" 
@@ -20,7 +20,7 @@
     </v-row>
     <v-row no-gutters justify="center" class="mt-1">
       <v-select
-        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF5858" color="#FF5858" item-color="#FF5858"
+        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
         :items="collegeItem"
         v-model="college"
       ></v-select>
@@ -31,7 +31,7 @@
     </v-row>
     <v-row no-gutters justify="center" class="mt-1">
       <v-select
-        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF5858" color="#FF5858" item-color="#FF5858"
+        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
         :items="studentIdItem"
         v-model="studentId"
       ></v-select>
@@ -42,7 +42,7 @@
     </v-row>
     <v-row no-gutters justify="center" class="mt-1">
       <v-select
-        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF5858" color="#FF5858" item-color="#FF5858"
+        variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
         :items="birthItem"
         v-model="birth"
       ></v-select>
@@ -170,7 +170,7 @@ function updateLocalStorage(field, value) {
 <style scoped>
 /* 토글 버튼 아이콘 색상 */
 :deep(.v-input__control .v-icon) {
-  color: #FF5858 !important; /* 아이콘 색상 */
+  color: #FF794C !important; /* 아이콘 색상 */
 }
 
 :deep(.v-label) {
