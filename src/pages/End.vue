@@ -3,33 +3,32 @@
     <SubTitle 
       :title="title" :desc="desc"
     ></SubTitle>
-    <v-row 
-      v-if="loading" 
-      no-gutters justify="center" align-content="center" 
-      style="min-height: 300px; min-width: 300px;"
-    >
-      <v-progress-circular
-        indeterminate
-        color="#FF794C"
-        size="64"
-        class="progress-circular"
-      ></v-progress-circular>
+
+    <v-row no-gutters class="justify-center">
+      <v-col no-gutters
+          style="
+            width: 308px; min-width: 308px; max-width: 308px; 
+            height: 420px; min-height: 412px; max-height: 420px; 
+          "
+        >
+
+          <!-- 핸드아웃 -->
+          <div ref="captureRef"  class="hidden-capture-area">
+            <ImageFrame :result="result" :loading="loading"></ImageFrame>
+          </div>
+
+          <v-img
+            v-if="!loading"
+            :src="capturedImage"
+            cover
+          ></v-img>
+          <div v-else>
+            <ImageFrame :result="result" :loading="loading"></ImageFrame>
+          </div>
+
+      </v-col>
     </v-row>
-    <v-row no-gutters justify="center" width="300px" 
-      style="min-height: 300px; min-width: 300px; 
-      align-items: center;"
-      class="elevation-6"
-      v-else="loading" 
-    >
-      <div ref="captureRef"  class="hidden-capture-area">
-        <ImageFrame :survey="survey"></ImageFrame>
-      </div>
-      <v-img
-        :src="capturedImage"
-        aspect-ratio="1/1"
-        cover
-      ></v-img>
-    </v-row>
+
     <v-row no-gutters justify="center | mt-3 | mb-8">
       <v-chip
         prepend-icon="mdi-arrow-up"
@@ -184,7 +183,7 @@ import Util from "@/common/Util.js"
 import BoxContainer from "@/components/BoxContainer.vue";
 import ImageFrame from "@/components/ImageFrame.vue";
 
-const emit = defineEmits(['restart-survey']);
+const emit = defineEmits(['restart-analyze']);
 
 const title = '짜잔! 결과 이미지가 나왔어요.'
 const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
@@ -197,16 +196,16 @@ const dialog = ref({
   okButton() {}
 });
 
-const loading = ref(false); // 로딩 상태 관리
+const loading = ref(true); // 로딩 상태 관리
 const captureRef = ref(null); // 캡처할 컴포넌트의 참조
 const capturedImage = ref(''); // 캡처된 이미지의 URL 저장
 
 const toastMessage = ref("");
 const showToast = ref(false); 
 
-const survey = ref({
+const result = ref({
   title:  null,           // 기숙사 숫자 int
-  imageUrl: ""         // 생성된 이미지 URL
+  img: "",              // 생성된 이미지 URL
 });
 
 const parsedSurvey = ref(null)
@@ -235,9 +234,9 @@ function loadSurveyData() {
     parsedSurvey.value = JSON.parse(existingSurvey);
   
     const titleInfo = "";
-    survey.value.title = titleInfo.title;
+    result.value.title = titleInfo.title;
 
-    console.log('set and parse survey object', survey.value);
+    console.log('set and parse result object', result.value);
   }
 }
 
@@ -247,10 +246,10 @@ function handleClickRestartBtn() {
     '설문 다시하기',
     '설문을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.', 
     () => {
-        console.log("emitting restart-survey event.");
+        console.log("emitting restart-analyze event.");
         localStorage.setItem('surveyId', null);
         localStorage.setItem('appInitialized', 'false');
-        emit('restart-survey'); 
+        emit('restart-analyze'); 
       }
     )
 }
@@ -258,7 +257,7 @@ function handleClickRestartBtn() {
 // 이미지 캡처 및 다운로드 //
 // 캡처 프로세스 시작 함수
 async function startCaptureProcess() {
-  loading.value = true; // 로딩 시작
+  loading.value = true; // 로딩 종료
   await captureAndSetImage(); // 캡처 실행
   loading.value = false; // 로딩 종료
 }
@@ -278,7 +277,8 @@ async function captureAndSetImage() {
       scale: window.devicePixelRatio || 2, // 고해상도 지원
       logging: true,  
       width: captureRef.value.offsetWidth,  
-      height: captureRef.value.offsetHeight
+      height: captureRef.value.offsetHeight,
+      backgroundColor: null
     });
 
     const dataUrl = canvas.toDataURL("image/png");
@@ -378,6 +378,8 @@ function handleSnackbarClose(value) {
   position: absolute;
   top: -99999px;
   left: -99999px;
+  opacity: 1;
+  pointer-events: none;
 }
 
 .text-title {

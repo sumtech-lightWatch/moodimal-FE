@@ -1,7 +1,26 @@
 <template>
     <v-container 
-        style="width: 1000px; height: 1000px; min-width: 1000px; min-height: 1000px; max-width: 1000px; max-height: 1000px; padding: 30px;"
+        class="card-container"
     >
+        <v-row
+            no-gutters
+            class="img-container | elevation-1"
+        >
+            
+        </v-row>
+
+        <!-- <v-row 
+            v-if="props.loading" 
+            no-gutters justify="center" align-content="center" 
+            style="min-height: 300px; min-width: 300px;"
+            >
+            <v-progress-circular
+                indeterminate
+                color="#FF794C"
+                size="64"
+                class="progress-circular"
+            ></v-progress-circular>
+        </v-row> -->
     </v-container>
 </template>
   
@@ -11,17 +30,18 @@
 import { onMounted, onUnmounted, ref, computed, watch} from "vue";
 
 const props = defineProps({
-    survey: Object
+    result: Object,
+    loading: Boolean
 });
 
-const survey = ref(null)
+const result = ref(null)
 
 const getColor = ref('#FF5858'); 
 
 // ----- 라이프 사이클 ----- //
 onMounted(() => {
-    console.log('component get survey object', props.survey);
-    survey.value = props.survey;
+    console.log('component get result object', props.result);
+    result.value = props.result;
 });
 
 onUnmounted(() => {
@@ -33,6 +53,22 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.card-container {
+    width: 308px; min-width: 308px; max-width: 308px; 
+    height: 420px; min-height: 412px; max-height: 420px; 
+    padding: 36px;
+    background-color: #FFFFFF;
+    border-radius: 24px; border-color: #CCCCCC; border-width: 1px; border-style: solid;
+    justify-content: center; justify-items: center;
+}
+
+.img-container {
+    width: 236px; min-width: 236px; max-width: 236px; 
+    height: 236px; min-height: 236px; max-height: 236px;
+    border-radius: 16px; 
+    background-color: #F2F2F2;
+    justify-content: center; justify-items: center;
+}
 
 </style>
 

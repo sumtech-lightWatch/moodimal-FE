@@ -19,7 +19,7 @@
     <v-main>
       <router-view
         @start-survey="emitStartSurvey"
-        @restart-survey="emitRestartSurvey"
+        @restart-analyze="emitRestartAnalyze"
         @hide-appbar="emitHideAppbar"
       ></router-view>
     </v-main>
@@ -130,7 +130,7 @@ function handleClickGoPage(state) {
       openDialog(
         '처음으로 돌아가기',
         '처음 화면으로 돌아갑니다.<br>현재까지 작성한 내용은 초기화됩니다.',
-        emitRestartSurvey
+        emitRestartAnalyze
       )
       break;
 
@@ -159,7 +159,7 @@ function emitStartSurvey() {
   router.push("/end");
 };
 
-function emitRestartSurvey() {
+function emitRestartAnalyze() {
   console.log('Event Received: Restart Survey');
   router.push("/home");
   dialog.value.dialogActive = false;
