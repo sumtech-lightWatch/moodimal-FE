@@ -24,24 +24,6 @@
         v-model="college"
       ></v-select>
     </v-row>
-    <!-- <v-card
-      class="mx-auto | margin-top-56 | pt-2 pl-4 pr-4"
-      max-width="320" rounded="lg"
-    >
-      <v-card-title class="card-title-text">
-        <v-icon icon="mdi-information | pb-1 | mr-1"></v-icon>
-        응답내용 수집 안내
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text>
-        <div style="text-align: left; letter-spacing: -0.5px;">
-          본 서비스는 품질 향상과 인사이트 도출을 위해 
-          응답을 수집하여 통계 및 분석에 활용합니다. 
-          <br>위 내용은 해당 목적 외에는 사용되지 않으며, 
-          관련 법령을 준수하여 안전하게 관리됩니다.
-        </div>
-      </v-card-text>
-    </v-card> -->
     
     <v-row 
       no-gutters justify="center" class="margin-42 | mt-2"
@@ -64,14 +46,12 @@ import { useRouter, useRoute } from "vue-router";
 import { routes } from "@/router"
 import { el } from "vuetify/locale";
 
-const emit = defineEmits(['hide-appbar', 'start-survey', 'restart-survey', 'continue-survey']);
+const emit = defineEmits(['hide-appbar', 'start-survey', 'restart-survey']);
 
 
 // ----- 라이프 사이클 ----- //
 onMounted(() => {
   emit('hide-appbar'); 
-  localStorage.setItem('userProgress', JSON.stringify({ currentStep: 0}));
-  console.log("set localStorage userProgress:", localStorage.getItem('userProgress'));
 
   setCurrentSurvey();
 
@@ -87,9 +67,6 @@ onUnmounted(() => {
 
 // 최초 로딩
 function setCurrentSurvey() {
-  localStorage.setItem('userProgress', JSON.stringify({ currentStep: 1}));
-  console.log("Updated localStorage userProgress:", localStorage.getItem('userProgress'))
-
   // 저장된 값이 있다면 가져오기
   const existingSurvey = localStorage.getItem('userSurvey');
   

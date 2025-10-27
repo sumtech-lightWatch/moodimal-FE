@@ -53,34 +53,15 @@
     </v-row>
     <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-2">
       <v-btn 
-        @click="handleClickRestartBtn"
+        @click="handleClickFixBtn"
         color="#FF794C" rounded="xl" width="100%"
         class="text-btn"
       >
-        처음부터 다시하기
+        설문 수정하기
       </v-btn>
     </v-row>
 
     <v-row no-gutters>    
-          <!-- <v-card
-      class="mx-auto | margin-top-56 | pt-2 pl-4 pr-4"
-      max-width="320" rounded="lg"
-    >
-      <v-card-title class="card-title-text">
-        <v-icon icon="mdi-information | pb-1 | mr-1"></v-icon>
-        응답내용 수집 안내
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text>
-        <div style="text-align: left; letter-spacing: -0.5px;">
-          본 서비스는 품질 향상과 인사이트 도출을 위해 
-          응답을 수집하여 통계 및 분석에 활용합니다. 
-          <br>위 내용은 해당 목적 외에는 사용되지 않으며, 
-          관련 법령을 준수하여 안전하게 관리됩니다.
-        </div>
-      </v-card-text>
-    </v-card> -->
-
         <v-col
           cols="12"
           no-gutters justify="start" 
@@ -103,8 +84,17 @@
         >
         </v-col>
     </v-row>
+    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14">
+      <v-btn 
+        @click="handleClickRestartBtn"
+        color="#FF794C" rounded="xl" width="100%"
+        class="text-btn"
+      >
+        처음부터 다시하기
+      </v-btn>
+    </v-row>
 
-    <v-row no-gutters justify="center" class="margin-48 | mb-8 | pl-14 | pr-14">
+    <v-row no-gutters justify="center" class="margin-48 | mt-4 | mb-8 | pl-14 | pr-14">
       <v-btn 
         @click="handleClickCopyBtn"
         color="#FFFFFF" rounded="xl" width="100%" 
@@ -184,10 +174,10 @@ import Util from "@/common/Util.js"
 import BoxContainer from "@/components/BoxContainer.vue";
 import ImageFrame from "@/components/ImageFrame.vue";
 
-const emit = defineEmits(['restart-survey']);
+const emit = defineEmits(['restart-survey', 'fix-survey']);
 
 const title = '짜잔! 결과 이미지가 나왔어요.'
-const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
+const desc = '이미지를 저장하고 공유하여<br>마음에 맞는 룸메이트를 구해보세요.'
 const ourInfo = '안녕하세요, 둥지동지를 제작한 예술공학부 동아리 칸타르 소속의 <b><칸타르동방구함위원회></b> 입니다.<br><br>둥지동지는 룸메이트를 빠르고 편하게 구할 수 있게 하기 위해 기획한 프로젝트입니다.<br><br>제작에 도움을 주신 예공 친구들에게 감사드리며, 모두 좋은 룸메이트를 찾으시길 바랍니다.<br>새해 복 많이 받으세요!'
 
 const dialog = ref({
@@ -205,11 +195,42 @@ const toastMessage = ref("");
 const showToast = ref(false); 
 
 const survey = ref({
-  title:  null,           // 기숙사 숫자 int
-  imageUrl: ""         // 생성된 이미지 URL
+  title:  null,
+  titleId:  "",
+  dorm:  null,
+  birth: null,
+  studentId: null,
+  college: "",
+  collegeId: 0,
+  mbti: "",
+  smoke: null,
+  drink: "00-0-00",
+  sdEtc: "",
+  wakeUp: "",
+  lightOff: "",
+  bedTime: "",
+  sleepHabit: 0,
+  clean: 0,
+  bug: 0,
+  eatIn: 0,
+  noise: 0,
+  share: 0,
+  home: 0,
+  tags: [],
+  notes: "",
+  selectTag: []
 });
 
 const parsedSurvey = ref(null)
+
+const colorMap = {
+    '예지 1동': '#FF45CA', 
+    '예지 2동': '#FD9301', 
+    '예지 3동': '#00CA8E', 
+    '명덕 1동': '#FF435C', 
+    '명덕 2동': '#0E6BEC', 
+    '명덕 3동': '#19BE00', 
+};
 
 // ----- 라이프 사이클 ----- //
 onBeforeMount(() => {
@@ -220,10 +241,13 @@ onMounted(async () => {
   loadSurveyData();
   await nextTick(); // DOM이 렌더링 완료된 후 실행
   startCaptureProcess();
+  intervalId = setInterval(updateAd, 3000);
 });
 
 onUnmounted(() => {
-
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
 })
 
 // ----- 함수 정의 ----- //
@@ -234,11 +258,51 @@ function loadSurveyData() {
   if (existingSurvey) {
     parsedSurvey.value = JSON.parse(existingSurvey);
   
+    // 데이터 매핑 및 할당
+    survey.value.dorm = parsedSurvey.value.dorm;
+    survey.value.color = colorMap[survey.value.dorm] || '#FF794C';
+    survey.value.birth = parsedSurvey.value.birth
+      ? parsedSurvey.value.birth === 0
+        ? "비공개"
+        : String(parsedSurvey.value.birth).slice(-2)
+      : "비공개";
+    survey.value.studentId = parsedSurvey.value.studentId
+      ? parsedSurvey.value.studentId === 0
+        ? "비공개"
+        : String(parsedSurvey.value.studentId).slice(-2)
+      : "비공개";
+    survey.value.college ="";
+    survey.value.collegeId = parsedSurvey.value.college || 0;
+    survey.value.mbti = parsedSurvey.value.mbti || "선택안함";
+    survey.value.smoke = "";
+    survey.value.drink = "";
+    survey.value.sdEtc = parsedSurvey.value.sdEtc || "";
+    survey.value.wakeUp = parsedSurvey.value.wakeUp || "00:00";
+    survey.value.lightOff = parsedSurvey.value.lightOff || "00:00";
+    survey.value.bedTime = parsedSurvey.value.bedTime || "00:00";
+    survey.value.sleepHabit = "";
+    survey.value.clean = parsedSurvey.value.clean || 0; // 낮을수록 깨끗, 높을수록 더럽
+    survey.value.bug = parsedSurvey.value.bug || 0; // 낮을수록 못잡음, 높을수록 잘잡음
+    survey.value.eatIn = parsedSurvey.value.eatIn || 0; // 낮을수록 더럽, 높을수록 깨끗
+    survey.value.noise = parsedSurvey.value.noise || 0; //낮을수록 예민, 높을수록 덤덤
+    survey.value.share = parsedSurvey.value.share || 0; // 낮을수록 개인물품만 사용, 높을수록 공동사용
+    survey.value.home = parsedSurvey.value.home || 0; // 낮을수록 자주 집에감, 높을수록 학교에 오래 있음
+    survey.value.notes = parsedSurvey.value.notes || "";
+    survey.value.selectTag = parsedSurvey.value.selectTag || []; // 적을수록 덤덤, 높을수록 예민
+
     const titleInfo = "";
     survey.value.title = titleInfo.title;
+    survey.value.titleId = titleInfo.titleId;
 
     console.log('set and parse survey object', survey.value);
   }
+}
+
+// 설문 수정
+function handleClickFixBtn() {
+  localStorage.setItem('surveyId', null);
+  console.log("emitting fix-survey event.");
+  emit('fix-survey'); 
 }
 
 // 다시 시작
@@ -248,7 +312,6 @@ function handleClickRestartBtn() {
     '설문을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.', 
     () => {
         console.log("emitting restart-survey event.");
-        localStorage.setItem('surveyId', null);
         localStorage.setItem('appInitialized', 'false');
         emit('restart-survey'); 
       }

@@ -1,13 +1,13 @@
 <template>
     <v-row 
-        no-gutters justify="start" 
-        class="text-title | mb-4"
+        no-gutters justify="center" 
+        class="text-title | mb-4 | justify-center"
     >
         <v-col>{{ title }}</v-col>
     </v-row>
     <v-row 
-        no-gutters justify="start"
-        class="text-subtitle | mb-10"
+        no-gutters justify="center"
+        class="text-subtitle | mb-10 | justify-center"
     >
         <v-col v-html="props.desc"></v-col>
     </v-row>

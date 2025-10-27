@@ -20,8 +20,6 @@
       <router-view
         @start-survey="emitStartSurvey"
         @restart-survey="emitRestartSurvey"
-        @continue-survey="emitContinueSurvey"
-        @fix-survey="emitFixSurvey"
         @hide-appbar="emitHideAppbar"
       ></router-view>
     </v-main>
@@ -70,14 +68,6 @@ import axios from "axios";
 const router = useRouter();
 const route = useRoute();
 
-const surveyPage = ref([
-  { path: "/", meta: { appbar: false, index: 0 } },
-  { path: "/home", meta: { appbar: false, index: 0 } },
-]);
-const pageIndex = ref(0);
-
-const sHomeBtn = ref(true);
-const sNextBtn = ref(true);
 const sFooter = ref(false);
 const sAppBar = ref(false);
 
@@ -90,26 +80,7 @@ const dialog = ref({
 
 const lastDocumentId = ref(null)
 const survey = ref({
-  dorm:  null,           // 기숙사 숫자 int
-  birth: null,          // 생년 int /2002
-  studentId: null,      // 학번 2자리 / 25
-  college: 0,        // 단과대 (문자열)
-  mbti: "",           // MBTI List
-  smoke: null,           // 흡연 여부 0,1,2 (int)
-  drink: "",          // 음주 정보 (예: "12-0-00")
-  sdEtc: "",  // 음주/흡연 관련 기타 (서술형 문자열)
-  wakeUp: "",         // 기상 시간 ("00-00")
-  lightOff: "",       // 소등 시간 ("00-00")
-  bedTime: "",        // 취침 시간 ("00-00")
-  sleepHabit: 0,      // 잠버릇 0,1,2,3 (int)
-  clean: 0,           // 청소·정리정돈 성향 0,1,2,3 (int)
-  bug: 0,             // 벌레에 대한 민감도 0,1,2 (int)
-  eatIn: 0,           // 실내취식 0,1,2,3 (int)
-  noise: 0,           // 소음 허용/민감도 0,1,2 (int)
-  share: 0,           // 공유·공용물품 성향 0,1,2,3 (int)
-  home: 0,      // 귀가 주기 0,1,2,3 (int)
-  selectTag: [],           // 해시태그(태그) 배열 (문자열 리스트)
-  notes: "",           // 기타 참고사항 (서술형 문자열)
+  title:  null,           // 기숙사 숫자 int
   imageUrl: ""         // 생성된 이미지 URL
 });
 
@@ -128,14 +99,6 @@ onUnmounted(() => {
 });
 
 watch(() => route.path, (path) => {
-    // Update the pageIndex based on the current route
-    const currentPage = surveyPage.value.find((page) => page.path === path);
-    if (currentPage) {
-      pageIndex.value = currentPage.meta.index - 1;
-    } else if (!['/end', '/home', '/'].includes(path)) {
-      console.error("Current path does not exist in surveyPage:", path);
-    }
-
     // 헤더, 푸터, 앱바 설정
     if (path === "/home" || path === "/") {
       sFooter.value = false;
@@ -149,21 +112,6 @@ watch(() => route.path, (path) => {
       sFooter.value = true;
       sAppBar.value = true;
     }
-
-    // 전/후/처음 버튼 관련
-    // 'Next' vs 'Finish' button logic
-    if (path === '/survey7' || path === '/text2img') {
-      sNextBtn.value = false; // Show Finish
-    } else {
-      sNextBtn.value = true; // Show Next
-    }
-
-    // 'Home' vs 'Back' button logic
-    if (path === '/survey1' || path === '/text2img') {
-      sHomeBtn.value = true; // Show Home
-    } else {
-      sHomeBtn.value = false; // Show Back
-    }
   },
   { immediate: true }
 );
@@ -171,23 +119,12 @@ watch(() => route.path, (path) => {
 // ----- 함수 정의 ----- //
 function initSurvey() {
   localStorage.setItem('appInitialized', 'true');
-  localStorage.setItem('userProgress', JSON.stringify({ currentStep: 0}));
   localStorage.setItem('userSurvey', JSON.stringify(survey.value));
 
   console.log("set localStorage appInitialized:", localStorage.getItem('appInitialized'))
-  console.log("set localStorage userProgress:", localStorage.getItem('userProgress'))
-  console.log("set localStorage userProgress:", localStorage.getItem('userSurvey'))
 }
 
 function handleClickGoPage(state) {
-  // 현재 경로에 해당하는 인덱스를 찾음
-  const currentIndex = surveyPage.value.findIndex((page) => page.path === route.path);
-
-  if (currentIndex === -1) {
-    console.warn("현재 경로가 surveyPage에 없습니다.");
-    return;
-  }
-
   switch (state) {
     case "home":
       openDialog(
@@ -219,7 +156,7 @@ function emitHideAppbar() {
 function emitStartSurvey() {
   console.log('Event Received: Start Survey');
   initSurvey();
-  router.push("/survey1");
+  router.push("/end");
 };
 
 function emitRestartSurvey() {
@@ -227,16 +164,6 @@ function emitRestartSurvey() {
   router.push("/home");
   dialog.value.dialogActive = false;
   initSurvey();
-};
-
-function emitFixSurvey() {
-  console.log('Event Received: Fix Survey');
-  router.push("/survey7");
-};
-
-function emitContinueSurvey() {
-  console.log('Event Received: Continue Survey');
-  router.push("/survey1");
 };
 
 function openDialog(title, text, onConfirm) {
