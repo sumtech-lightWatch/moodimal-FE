@@ -52,7 +52,6 @@
       <v-card-text class="text-subtitle | pl-4 | pr-4 | pt-2 | pb-3" v-html="dialog.text"></v-card-text>
       <template v-slot:actions>
           <v-row no-gutters justify="end">
-              <v-btn color="#FF794C" width="25%" rounded="xl" variant="outlined" @click="dialog.dialogActive = false">닫기</v-btn>
               <v-btn v-if="dialog.okButton" color="#FF794C" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
           </v-row>
       </template>
@@ -110,7 +109,7 @@ const dialog = ref({
   title: '',
   text: '',
   dialogActive: false, 
-  okButton() {}
+  okButton() {},
 });
 
 const loading = ref(true);
@@ -141,6 +140,7 @@ onMounted(async () => {
     console.error('[Load] LLM 분석 실패:', err);
     openDialog('오류', '결과를 불러오는 중 오류가 발생했습니다.', () => {
       dialog.value.dialogActive = false;
+      router.push('/'); // 필요 시 시작 화면으로
     });
   }
 
