@@ -13,10 +13,23 @@
       </v-col>
     </v-row>
 
+    <v-row no-gutters justify="center" class="cards-section | mt-12 | mb-12">
+      <v-col cols="12" class="d-flex | justify-center">
+        <div class="cards-track">
+          <v-card
+            v-for="i in 3"
+            :key="i"
+            class="card | floating-card"
+            :style="{ animationDelay: `${i * 0.8}s`, animationDuration: `${5 + i}s` }"
+            elevation="8"
+            rounded="xl"
+          >
+            <img :src="cards[i-1]" alt="" class="card-img" />
+          </v-card>
+        </div>
+      </v-col>
+    </v-row>
 
-    <!-- <v-row no-gutters justify="start">
-      <v-label>단과대를 선택해주세요</v-label>
-    </v-row> -->
     <v-row no-gutters justify="center" class="mt-1">
       <v-file-input
         variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
@@ -80,6 +93,10 @@ const router = useRouter();
 const emit = defineEmits(['hide-appbar', 'loading-result', 'restart-survey']);
 
 
+import card1 from '@/assets/card_1.png';
+import card2 from '@/assets/card_2.png';
+import card3 from '@/assets/card_3.png';
+const cards = [card1, card2, card3];
 
 const dialog = ref({
   title: '',
@@ -171,8 +188,6 @@ function openDialog(title, text, onConfirm) {
 
 
 </script>
-
-
 <style scoped>
 
 /* 토글 버튼 아이콘 색상 */
@@ -269,6 +284,76 @@ function openDialog(title, text, onConfirm) {
     line-height: 20px;
     letter-spacing: -0.4px;
     color: #404040;
+}
+
+/* ===== 카드 섹션 ===== */
+.cards-section {
+  margin-top: 20px;
+  width: 100%;
+  /* overflow-x: hidden; <-- 제거됨 */
+}
+
+/* 카드 트랙 — 항상 중앙 정렬 & 모바일 기준 폭 유지 */
+.cards-track {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto; /* hidden -> auto 또는 제거 */
+  padding: 6px 10px;
+  width: 100%; /* 468px -> 100% */
+}
+
+/* 카드 — 모바일 크기 기준 (항상 작게) */
+.card {
+  /* flex: 0 0 auto; <-- 제거됨 */
+  border-radius: 12px;
+  background: #fff;
+  scroll-snap-align: start;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.card-img {
+  display: block;
+  width: 100%; /* 추가됨 */
+  height: auto; /* 추가됨 */
+  border-radius: 12px;
+}
+
+/* --- 수정된 스타일 --- */
+/* 개별 카드 '비율' 설정 */
+.card:nth-child(1) {
+  flex: 0 1 31.4%; /* 137 / 436 */
+}
+
+.card:nth-child(2) {
+  flex: 0 1 37.2%; /* 162 / 436 */
+}
+
+.card:nth-child(3) {
+  flex: 0 1 31.4%; /* 137 / 436 */
+}
+/* --- --- */
+
+
+/* 둥둥 떠다니는 애니메이션 */
+.floating-card {
+  animation-name: float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+.floating-card:hover {
+  transform: scale(1.05);
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px) rotate(-1deg); }
+  50%  { transform: translateY(-12px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(-1deg); }
 }
 
 </style>
