@@ -52,6 +52,17 @@
         결과확인하기
       </v-btn>
     </v-row>
+    <v-row 
+      no-gutters justify="center" class="margin-42 | mt-2"
+    >
+      <v-btn 
+        @click="handleClickGoToArchive"
+        variant="outline" color="#FF794C" rounded="xl" size="large" width="80%" height="32px"
+        class="text-small-btn"
+      >
+        다른 무디멀 구경하기
+      </v-btn>
+    </v-row>
   </v-container>
 
   <!-- 다이얼로그 -->
@@ -131,6 +142,10 @@ function fileToDataURL(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+function handleClickGoToArchive() {
+  router.push('/archive');
 }
 
 async function handleClickStartBtn() {
@@ -264,7 +279,6 @@ function openDialog(title, text, onConfirm) {
 }
 
 .text-small-btn {
-  color: #FFF;
   text-align: center;
   font-size: 18px;
   font-style: normal;
