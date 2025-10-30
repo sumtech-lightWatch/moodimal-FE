@@ -12,17 +12,12 @@
           "
         >
 
-          <div ref="captureRef"  class="hidden-capture-area">
+          <div ref="captureRef">
             <ImageFrame 
               :loading="loading" 
               @image-ready="startCaptureProcess"
             ></ImageFrame>
           </div>
-
-          <v-img
-            :src="capturedImage"
-            cover
-          ></v-img>
 
       </v-col>
     </v-row>
@@ -107,7 +102,31 @@
   </BoxContainer>
 
   <v-dialog v-model="dialog.dialogActive" width="auto">
-    </v-dialog>
+    <v-card class="pa-2 | pb-3" rounded="lg">
+      <v-card-title class="text-title | pl-4 | pr-4 | pt-4">
+        <v-row style="justify-content: start; align-items: center;">
+          <v-col class="pt-0 | pb-0 | pl-4 | pr-1" cols="auto">
+            <v-img
+              src="@/assets/logo.png"
+              height="24"
+              width="24"
+              class=""
+            ></v-img>
+          </v-col>
+          <v-col class="pl-1" cols="auto">
+            {{ dialog.title }}
+          </v-col>
+        </v-row>
+      </v-card-title>
+      <v-card-text class="text-subtitle | pl-4 | pr-4 | pt-2 | pb-3" v-html="dialog.text"></v-card-text>
+      <template v-slot:actions>
+          <v-row no-gutters justify="end">
+              <v-btn color="#FF794C" width="25%" rounded="xl" variant="outlined" @click="dialog.dialogActive = false">닫기</v-btn>
+              <v-btn v-if="dialog.okButton" color="#FF794C" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
+          </v-row>
+      </template>
+    </v-card>
+  </v-dialog>
 
 
   <v-snackbar
@@ -118,7 +137,9 @@
     class="mb-12"
     @update:model-value="handleSnackbarClose"
   >
-    </v-snackbar>
+    <v-icon color="info" icon="mdi-information" class="mr-2"></v-icon>
+    {{ toastMessage }}
+  </v-snackbar>
 
 </template>
 
@@ -142,7 +163,7 @@ const dialog = ref({
 });
 const loading = ref(true); 
 const captureRef = ref(null); 
-const capturedImage = ref(''); 
+const capturedImage = ref(''); // 이 변수는 이제 화면 표시에 사용되지 않고, 다운로드용으로만 사용됩니다.
 const toastMessage = ref("");
 const showToast = ref(false); 
 const result = ref({
@@ -159,7 +180,6 @@ onBeforeMount(() => {
 onMounted(async () => {
   localStorage.setItem('serviceStatus', 'end');
   loadMoodimalData();
-  // onMounted에서 캡처 호출 제거 (이벤트 기반으로 변경됨)
 });
 
 onUnmounted(() => {
@@ -195,54 +215,31 @@ function handleClickRestartBtn() {
 
 async function startCaptureProcess() {
   console.log("End.vue: 'image-ready' 이벤트 수신. 캡처를 시작합니다.");
-  loading.value = true; 
+  loading.value = true; // (참고: 이 loading 프롭은 현재 ImageFrame에서 사용되지 않음)
 
-  // v-img가 로드 이벤트를 발생시킨 후 브라우저가 페인팅할 시간을 줍니다.
-  // 50ms보다 100ms가 더 안정적일 수 있습니다.
-  await new Promise(resolve => setTimeout(resolve, 100)); 
+  // 캡처 전 딜레이
+  await new Promise(resolve => setTimeout(resolve, 50)); 
 
   await captureAndSetImage(); // 캡처 실행
-  
-  // loading.value = false; // captureAndSetImage의 finally에서 처리
 }
 
 async function captureAndSetImage() {
   if (!captureRef.value) {
-    console.error("캡처할 요소가 존재하지 않습니다.");
+    console.error("캡처할 요소(captureRef)가 존재하지 않습니다.");
     toastMessage.value = "캡처할 요소가 없습니다.";
     showToast.value = true;
-    loading.value = false; // 로딩 종료
+    loading.value = false;
     return;
   }
   
+  // [수정] 캡처할 대상 (항상 DOM에 존재함)
   const el = captureRef.value;
   
-  // [수정] 캡처를 위해 일시적으로 화면에 표시 (스타일 변경)
-  // 1. 기존 스타일 저장
-  const originalStyle = { 
-    position: el.style.position, 
-    top: el.style.top, 
-    left: el.style.left,
-    opacity: el.style.opacity,
-    zIndex: el.style.zIndex,
-    pointerEvents: el.style.pointerEvents
-  };
+  // [수정] 모든 스타일 조작 로직(opacity, zIndex 등) 제거
   
-  // 2. 캡처를 위해 스타일 변경 (화면 최상단, 맨 위로, 보이게)
-  el.style.position = 'absolute';
-  el.style.top = '0px';
-  el.style.left = '0px';
-  el.style.opacity = '1'; 
-  el.style.zIndex = '1000'; 
-  el.style.pointerEvents = 'none';
-  
-  // 스타일이 적용되도록 nextTick 대기
-  await nextTick();
-
   try {
     const canvas = await html2canvas(el, {
-      // allowTaint: true, // [수정] data: URI에는 불필요하며 toDataURL을 막을 수 있으므로 제거
-      useCORS: true, //
+      useCORS: true,
       scale: window.devicePixelRatio || 2, 
       logging: true,  
       width: el.offsetWidth,  
@@ -251,6 +248,8 @@ async function captureAndSetImage() {
     });
 
     const dataUrl = canvas.toDataURL("image/png");
+    
+    // [수정] capturedImage 값을 설정. (UI 변경 없음)
     capturedImage.value = dataUrl; 
 
     console.log("캡처 완료 및 Base64 URL 생성");
@@ -260,15 +259,8 @@ async function captureAndSetImage() {
     toastMessage.value = "캡처 중 오류가 발생했습니다.";
     showToast.value = true;
   } finally {
-    // [수정] 캡처 후 요소를 다시 원래 스타일로 숨김
-    el.style.position = originalStyle.position;
-    el.style.top = originalStyle.top;
-    el.style.left = originalStyle.left;
-    el.style.opacity = originalStyle.opacity;
-    el.style.zIndex = originalStyle.zIndex;
-    el.style.pointerEvents = originalStyle.pointerEvents;
-    
-    loading.value = false; // 로딩 종료
+    // [수정] 스타일 복원 로직 제거
+    loading.value = false;
   }
 }
 // ----- [캡처 로직 수정 끝] ----- //
@@ -336,7 +328,10 @@ function handleSnackbarClose(value) {
 </script>
 
 <style scoped>
-/* ... (text-btn, w-text-btn 등 다른 스타일은 동일) ... */
+/* [수정] .hidden-capture-area 스타일 제거 (더 이상 필요 없음) */
+/*
+.hidden-capture-area { ... }
+*/
 
 .text-btn {
   color: #FFF;
@@ -354,19 +349,6 @@ function handleSnackbarClose(value) {
   font-style: normal;
   font-weight: 400;
   letter-spacing: -0.5px;
-}
-
-/* [수정 없음]
-   이 CSS는 캡처 로직과 연동되어
-   JS가 일시적으로 이 스타일을 덮어쓰고 캡처 후 복원합니다.
-*/
-.hidden-capture-area {
-  position: absolute;
-  top: 0;
-  left: 0;
-  opacity: 0; /* 보이지 않게 */
-  pointer-events: none; /* 클릭/마우스 이벤트 방지 */
-  z-index: -1; /* 다른 요소들 뒤로 숨김 */
 }
 
 .text-title {
