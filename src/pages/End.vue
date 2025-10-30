@@ -93,7 +93,7 @@
         처음부터 다시하기
       </v-btn>
     </v-row>
-    <v-row no-gutters justify="center" class="pl-14 | pr-14 | pt-3 | mb-8">
+    <v-row no-gutters justify="center" class="pl-14 | pr-14 | pt-3 | mb-12">
       <v-btn 
         @click="handleClickCopyBtn"
         color="#FFFFFF" rounded="xl" width="100%" 
@@ -104,7 +104,7 @@
       </v-btn> 
     </v-row>
 
-    <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
+    <!-- <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
       <v-col cols="auto">
         <v-btn variant="text" density="compact" href="https://github.com/Ebee1205/DungDong?tab=readme-ov-file#-%EC%9E%91%EC%97%85%EA%B8%B0" target="_blank" class="link-label | mr-3">
           둥동 작업기
@@ -115,7 +115,7 @@
           제작자 소개
         </v-btn>
       </v-col>
-    </v-row>
+    </v-row> -->
   </BoxContainer>
 
   <v-dialog v-model="dialog.dialogActive" width="auto">
