@@ -6,16 +6,16 @@
 
     <v-row no-gutters class="justify-center | mt-9">
       <v-col no-gutters>
-          <!-- 이미지 스캔 애니메이션 -->
-          <div class="image-scan-container">
-            <img 
-              :src="imageSrc" 
-              alt="Uploaded preview"
-              class="scan-image"
-            />
-            <div class="scan-line" :style="{ '--scan-height': imageHeight + 'px' }"></div>
-            <div class="scan-overlay" :style="{ '--scan-height': imageHeight + 'px' }"></div>
-          </div>
+        <!-- 이미지 스캔 애니메이션 -->
+        <div class="image-scan-container">
+          <img 
+            :src="imageSrc" 
+            alt="Uploaded preview"
+            class="scan-image"
+          />
+          <div class="scan-line" :style="{ '--scan-height': imageHeight + 'px' }"></div>
+          <div class="scan-overlay" :style="{ '--scan-height': imageHeight + 'px' }"></div>
+        </div>
       </v-col>
     </v-row>
     
@@ -51,13 +51,12 @@
       </v-card-title>
       <v-card-text class="text-subtitle | pl-4 | pr-4 | pt-2 | pb-3" v-html="dialog.text"></v-card-text>
       <template v-slot:actions>
-          <v-row no-gutters justify="end">
-              <v-btn v-if="dialog.okButton" color="#FF794C" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
-          </v-row>
+        <v-row no-gutters justify="end">
+          <v-btn v-if="dialog.okButton" color="#FF794C" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
+        </v-row>
       </template>
     </v-card>
   </v-dialog>
-
 
   <!-- 스낵바 -->
   <v-snackbar
@@ -71,21 +70,18 @@
     <v-icon color="info" icon="mdi-information" class="mr-2"></v-icon>
     {{ toastMessage }}
   </v-snackbar>
-
 </template>
 
 <script setup>
 // ----- 선언부 ----- //
 import { onMounted, onUnmounted, onBeforeMount, ref, nextTick } from "vue";
 import { useRouter } from "vue-router"; 
-
 import axios from "axios";
-import Util from "@/common/Util.js"
+import Util from "@/common/Util.js";
 
 import BoxContainer from "@/components/BoxContainer.vue";
 
 const emit = defineEmits(['restart-analyze']);
-
 const router = useRouter(); 
 
 const title = '이미지 분석 중...'
@@ -121,35 +117,35 @@ const showToast = ref(false);
 
 // ----- 라이프 사이클 ----- //
 onMounted(async () => {
-
+  // 0) 업로드된 이미지 유무 먼저 검사 → 없으면 팝업 후 홈으로 이동
   const saved = sessionStorage.getItem('uploadImg');
-  if (saved) {
-    imageSrc.value = saved;
-    // 이미지 로드 후 높이 계산
-    await nextTick();
-    const img = new Image();
-    img.onload = () => {
-      const imgElement = document.querySelector('.scan-image');
-      if (imgElement) {
-        imageHeight.value = imgElement.offsetHeight;
-      }
-    };
-    img.src = saved;
+  if (!saved) {
+    openDialog('알림', '업로드된 이미지가 없습니다. 처음부터 다시 시도해주세요.', () => {
+      dialog.value.dialogActive = false;
+      router.push('/'); // 시작 화면으로
+    });
+    return;
   }
+
+  // 업로드 이미지가 있으면 미리보기/높이 계산
+  imageSrc.value = saved;
+  await nextTick();
+  const img = new Image();
+  img.onload = () => {
+    const imgElement = document.querySelector('.scan-image');
+    if (imgElement) {
+      imageHeight.value = imgElement.offsetHeight;
+    }
+  };
+  img.src = saved;
 
   // 텍스트 전환 시작 (2초마다)
   textInterval = setInterval(() => {
     currentTextIndex.value = (currentTextIndex.value + 1) % infoTexts.value.length;
   }, 2000);
 
+  // OCR 텍스트는 팝업 없이 그대로 시도 (빈 문자열 가능)
   const text = getOcrTextFromLocalStorage();
-  if (!text) {
-    openDialog('알림', 'OCR 결과가 없습니다. 처음부터 다시 시도해주세요.', () => {
-      dialog.value.dialogActive = false;
-      router.push('/'); // 필요 시 시작 화면으로
-    });
-    return;
-  }
 
   // 2) LLM 분석 호출 → 3) 완료 시 /end로 이동
   try {
@@ -245,7 +241,6 @@ function handleSnackbarClose(value) {
   }
 }
 </script>
-
 
 <style scoped>
 .text-title {
