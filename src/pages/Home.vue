@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row no-gutters justify="center" class="margin-88 | margin-top-100">
+    <v-row no-gutters justify="center" class="margin-88 | margin-top-75">
       <v-img 
       src="@/assets/logo.svg"
       :width="240" :height="80"
@@ -221,6 +221,10 @@ function openDialog(title, text, onConfirm) {
 
 .margin-top-52 {
   margin-top: 52px;
+}
+
+.margin-top-75 {
+  margin-top: 75px;
 }
 
 .margin-top-100 {
