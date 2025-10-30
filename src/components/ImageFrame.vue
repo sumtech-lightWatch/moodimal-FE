@@ -1,63 +1,65 @@
 <template>
-    <v-container 
-        class="card-container"
+  <v-container class="card-container">
+    <!-- 이미지 영역 -->
+    <v-row no-gutters class="img-container | elevation-1">
+      <!-- Moodimal_image가 있을 경우 -->
+      <v-img
+        v-if="result.Moodimal_image"
+        :src="result.Moodimal_image"
+        cover
+        style="width: 100%; height: 100%; border-radius: 12px;"
+      ></v-img>
+    </v-row>
+
+    <v-row
+      no-gutters
+      class="justify-center | align-center | text-center | mt-6"
     >
-        <v-row
-            no-gutters
-            class="img-container | elevation-1"
-        >
-        </v-row>
-
-        <v-row
-            no-gutters
-            class="justify-center | align-center | text-center | mt-6"
-        >
-            <v-col cols=12 class="card-title">
-                {{ props.result.Card_title }}
-            </v-col>
-            <v-col cols="12" class="card-desc | mt-3">
-                {{ props.result.Card_lore }}
-            </v-col>
-        </v-row>
-
-        <!-- <v-row 
-            v-if="props.loading" 
-            no-gutters justify="center" align-content="center" 
-            style="min-height: 300px; min-width: 300px;"
-            >
-            <v-progress-circular
-                indeterminate
-                color="#FF794C"
-                size="64"
-                class="progress-circular"
-            ></v-progress-circular>
-        </v-row> -->
-    </v-container>
+      <v-col cols="12" class="card-title">
+        {{ result.Card_title }}
+      </v-col>
+      <v-col cols="12" class="card-desc | mt-3">
+        {{ result.Card_lore }}
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
-  
 
 <script setup>
-// ----- 선언부 ----- //
-import { onMounted, onUnmounted, ref, computed, watch} from "vue";
+import { onMounted, ref } from "vue";
 
 const props = defineProps({
-    result: Object,
-    loading: Boolean
+  loading: Boolean,
 });
 
-const result = ref(null)
+const result = ref({
+  Moodimal_image: null,
+  Card_title: "",
+  Card_lore: "",
+});
 
-// ----- 라이프 사이클 ----- //
 onMounted(() => {
-    console.log('component get result object', props.result);
-    result.value = props.result;
+  try {
+    const moodimalResult = JSON.parse(localStorage.getItem("moodimalResult"));
+    const moodimalImage = localStorage.getItem("moodimalImage"); // JSON.parse ❌
+
+    console.log("get moodimalResult", moodimalResult);
+
+    if (moodimalResult && moodimalResult.result) {
+      result.value = {
+        Moodimal_image: moodimalImage || "",
+        Moodimal_type: moodimalResult.moodimal || "",
+        Card_title: moodimalResult.result.Card_title || "",
+        Card_lore: moodimalResult.result.Card_lore || "",
+      };
+      console.log("component get result", result.value);
+    } else {
+      console.warn("moodimalResult 데이터가 비어 있습니다.");
+    }
+  } catch (error) {
+    console.error("ImageFrame 데이터 로드 중 오류:", error);
+  }
 });
-
-onUnmounted(() => {
-
-})
-
-// ----- 함수 정의 ----- //
 
 </script>
 

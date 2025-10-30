@@ -14,18 +14,14 @@
 
           <!-- 핸드아웃 -->
           <div ref="captureRef"  class="hidden-capture-area">
-            <ImageFrame :result="result" :loading="loading"></ImageFrame>
+            <ImageFrame :loading="loading"></ImageFrame>
           </div>
 
-          <v-img
-            v-if="!loading"
+          <!-- <v-img
             :src="capturedImage"
             cover
-          ></v-img>
-          <div v-else>
-            <ImageFrame :result="result" :loading="loading"></ImageFrame>
-          </div>
-
+          ></v-img> -->
+<ImageFrame :loading="loading"></ImageFrame>
       </v-col>
     </v-row>
 
@@ -203,10 +199,7 @@ const toastMessage = ref("");
 const showToast = ref(false); 
 
 const result = ref({
-  Moodimal_image: "",
   Moodimal_type: "",
-  Card_title: "",
-  Card_lore: "",
   Content_title: "",
   Content_lore: ""
 });
@@ -230,17 +223,15 @@ onUnmounted(() => {
 // ----- 함수 정의 ----- //
 function loadMoodimalData() {
   const moodimalResult = JSON.parse(localStorage.getItem('moodimalResult'));
-  console.log('get moodimalResult', moodimalResult);
+  console.log('get moodimalResult', moodimalResult.value);
 
-  if (moodimalResult && moodimalResult.result) {
+  if (moodimalResult && moodimalResult.result) { 
+    //TODO null 체크
     result.value = {
-      Moodimal_image: moodimalResult.Moodimal_image || "",  // 만약 API가 나중에 이미지 추가할 경우 대비
-      Moodimal_type: moodimalResult.moodimal || "",
-      Card_title: moodimalResult.result.Card_title || "",
-      Card_lore: moodimalResult.result.Card_lore || "",
       Content_title: moodimalResult.result.Content_title || "",
       Content_lore: moodimalResult.result.Content_lore || ""
     };
+    console.log('get result', result.value);
   } else {
     console.warn("moodimalResult 데이터가 비어 있습니다.");
   }
