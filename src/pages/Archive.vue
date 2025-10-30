@@ -1,114 +1,121 @@
 <template>
   <BoxContainer>
-    <SubTitle 
-      :title="title" :desc="desc"
-    ></SubTitle>
-
-    <v-row no-gutters class="justify-center">
-      <v-col no-gutters
-          style="
-            width: 308px; min-width: 308px; max-width: 308px; 
-            height: 420px; min-height: 412px; max-height: 420px; 
-          "
-        >
-
-          <!-- 핸드아웃 -->
-          <div ref="captureRef"  class="hidden-capture-area">
-            <ImageFrame :loading="loading"></ImageFrame>
-          </div>
-
-          <!-- <v-img
-            :src="capturedImage"
-            cover
-          ></v-img> -->
-<ImageFrame :loading="loading"></ImageFrame>
+    <!-- 헤더 -->
+    <v-row no-gutters justify="center" class="mb-6">
+      <v-col cols="12" class="text-center">
+        <div class="page-title">Moodimal Archive</div>
+        <div class="page-subtitle">당신의 무디멀 여정을 돌아봐요</div>
       </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center | mt-3 | mb-8">
-      <v-chip
-        prepend-icon="mdi-arrow-up"
-        append-icon="mdi-arrow-up"
-        variant="text"
-        color="#FF794C"
-        class="chip-text"
+    <!-- 검색창 -->
+    <v-row no-gutters justify="center" class="mb-4 px-4">
+      <v-text-field
+        v-model="searchQuery"
+        placeholder='ex. "거북이" 또는 날짜 입력'
+        variant="outlined" rounded="pill" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C" 
+        density="comfortable"
+        hide-details
+        class="search-input"
       >
-        꾹 눌러 저장하기
-      </v-chip>
+        <template v-slot:append-inner>
+          <v-icon color="#FF794C" size="24">mdi-magnify</v-icon>
+        </template>
+      </v-text-field>
     </v-row>
 
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14">
-      <v-btn 
-        @click="downloadImage(capturedImage)"
-        color="#FFFFFF" rounded="xl" width="100%"
-        class="w-text-btn"
-      >
-        이미지 다운로드
-      </v-btn>
+    <!-- 카드 그리드 -->
+    <v-row no-gutters class="px-4 mb-6">
+      <!-- 카드 1 -->
+      <v-col cols="6" class="pa-2">
+        <v-card class="moodimal-card" rounded="xl" elevation="2">
+          <v-img
+            :src="card1"
+            alt="무디멀 카드"
+            width="100%"
+            aspect-ratio="0.745"
+            cover
+            class="card-image"
+          ></v-img>
+        </v-card>
+        <v-btn
+          @click="handleCardClick(1)"
+          color="#FF794C"
+          rounded="pill"
+          width="100%"
+          height="36"
+          class="date-btn"
+          elevation="0"
+        >
+          2025.10.28 생성됨
+        </v-btn>
+      </v-col>
+
+      <!-- 카드 2 -->
+      <v-col cols="6" class="pa-2">
+        <v-card class="moodimal-card" rounded="xl" elevation="2">
+          <v-img
+            :src="card2"
+            alt="무디멀 카드"
+            width="100%"
+            aspect-ratio="0.745"
+            cover
+            class="card-image"
+          ></v-img>
+        </v-card>
+        <v-btn
+          @click="handleCardClick(2)"
+          color="#FF794C"
+          rounded="pill"
+          width="100%"
+          height="36"
+          class="date-btn"
+          elevation="0"
+        >
+          2025.10.27 생성됨
+        </v-btn>
+      </v-col>
+
+      <!-- 카드 3 -->
+      <v-col cols="6" class="pa-2">
+        <v-card class="moodimal-card" rounded="xl" elevation="2">
+          <v-img
+            :src="card3"
+            alt="무디멀 카드"
+            width="100%"
+            aspect-ratio="0.745"
+            cover
+            class="card-image"
+          ></v-img>
+        </v-card>
+        <v-btn
+          @click="handleCardClick(3)"
+          color="#FF794C"
+          rounded="pill"
+          width="100%"
+          height="36"
+          class="date-btn"
+          elevation="0"
+        >
+          2025.10.26 생성됨
+        </v-btn>
+      </v-col>
     </v-row>
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-2">
+
+    <!-- 다시 시작하기 버튼 (End.vue와 동일) -->
+    <v-row no-gutters justify="center" class="margin-32 | pl-14 | pr-14 | pt-2">
       <v-btn 
         @click="handleClickRestartBtn"
-        color="#FF794C" rounded="xl" width="100%"
+        color="#FF794C" 
+        rounded="xl" 
+        width="100%"
         class="text-btn"
       >
         처음부터 다시하기
       </v-btn>
     </v-row>
 
-    <v-row no-gutters>    
-          <!-- <v-card
-      class="mx-auto | margin-top-56 | pt-2 pl-4 pr-4"
-      max-width="320" rounded="lg"
-    >
-      <v-card-title class="card-title-text">
-        <v-icon icon="mdi-information | pb-1 | mr-1"></v-icon>
-        응답내용 수집 안내
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text>
-        <div style="text-align: left; letter-spacing: -0.5px;">
-          본 서비스는 품질 향상과 인사이트 도출을 위해 
-          응답을 수집하여 통계 및 분석에 활용합니다. 
-          <br>위 내용은 해당 목적 외에는 사용되지 않으며, 
-          관련 법령을 준수하여 안전하게 관리됩니다.
-        </div>
-      </v-card-text>
-    </v-card> -->
-
-        <v-col
-          cols="12"
-          no-gutters justify="start" 
-          class="text-subtitle | mb-1 | margin-top-96"
-        >
-          당신의 무디멀 유형은
-        </v-col>
-        <v-col
-          cols="12"
-          no-gutters justify="start" 
-          class="text-title | mb-6"
-        >
-         {{ result.Content_title }}
-        </v-col>
-        <v-col
-          cols="12"
-          no-gutters justify="start" 
-          class="text-subtitle | mb-5"
-          v-html="result.Content_lore"
-        >
-        </v-col>
-    </v-row>
-
-    <v-row no-gutters justify="center" class="margin-48 | mb-8 | pl-14 | pr-14">
-      <v-btn 
-        @click="handleClickCopyBtn"
-        color="#FFFFFF" rounded="xl" width="100%" 
-        class="w-text-btn"
-      >
-        <img src="@/assets/logo.svg" alt="Roommate Search" style="height: 26px; width: 64px; margin-right: 4px;">
-        알리기
-      </v-btn>  
-    </v-row>
+    <!-- 푸터 링크 (End.vue와 동일) -->
     <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
       <v-col cols="auto">
         <v-btn variant="text" density="compact" href="https://github.com/Ebee1205/DungDong?tab=readme-ov-file#-%EC%9E%91%EC%97%85%EA%B8%B0" target="_blank" class="link-label | mr-3">
@@ -150,206 +157,121 @@
       </template>
     </v-card>
   </v-dialog>
-
-
-  <!-- 스낵바 -->
-  <v-snackbar
-    v-model="showToast"
-    :timeout="3000"
-    color="white"
-    rounded="pill"
-    class="mb-12"
-    @update:model-value="handleSnackbarClose"
-  >
-    <v-icon color="info" icon="mdi-information" class="mr-2"></v-icon>
-    {{ toastMessage }}
-  </v-snackbar>
-
 </template>
 
 <script setup>
-// ----- 선언부 ----- //
-import { onMounted, onUnmounted, onBeforeMount, ref, nextTick} from "vue";
+import { ref } from 'vue';
+import BoxContainer from '@/components/BoxContainer.vue';
 
-import axios from "axios";
-
-import html2canvas from "html2canvas";
-import Util from "@/common/Util.js"
-
-import BoxContainer from "@/components/BoxContainer.vue";
-import ImageFrame from "@/components/ImageFrame.vue";
+// 이미지 import - card_1.png, card_2.png, card_3.png
+import card1 from '@/assets/card_1.png';
+import card2 from '@/assets/card_2.png';
+import card3 from '@/assets/card_3.png';
 
 const emit = defineEmits(['restart-analyze']);
 
-const title = '짜잔! 결과 이미지가 나왔어요.'
-const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
+// 검색어
+const searchQuery = ref('');
 
+// 다이얼로그
 const dialog = ref({
   title: '',
   text: '',
-  isActive: false,
-  okButton() {}
+  dialogActive: false,
+  okButton: null
 });
 
-const loading = ref(true); // 로딩 상태 관리
-const captureRef = ref(null); // 캡처할 컴포넌트의 참조
-const capturedImage = ref(''); // 캡처된 이미지의 URL 저장
-
-const toastMessage = ref("");
-const showToast = ref(false); 
-
-const result = ref({
-  Moodimal_type: "",
-  Content_title: "",
-  Content_lore: ""
-});
-
-// ----- 라이프 사이클 ----- //
-onBeforeMount(() => {
-});
-
-
-onMounted(async () => {
-  localStorage.setItem('serviceStatus', 'end');
-  loadMoodimalData();
-  await nextTick(); // DOM이 렌더링 완료된 후 실행
-  startCaptureProcess();
-});
-
-onUnmounted(() => {
-
-})
-
-// ----- 함수 정의 ----- //
-function loadMoodimalData() {
-  const moodimalResult = JSON.parse(localStorage.getItem('moodimalResult'));
-  console.log('get moodimalResult', moodimalResult.value);
-
-  if (moodimalResult && moodimalResult.result) { 
-    //TODO null 체크
-    result.value = {
-      Content_title: moodimalResult.result.Content_title || "",
-      Content_lore: moodimalResult.result.Content_lore || ""
-    };
-    console.log('get result', result.value);
-  } else {
-    console.warn("moodimalResult 데이터가 비어 있습니다.");
+// 카드 데이터
+const cardData = {
+  1: {
+    title: '#차분형',
+    name: '침착한 침팬지',
+    description: '어지러운 세상 속에서도 늘 한 걸음 뒤에서 상황을 지켜보는 침팬지입니다.'
+  },
+  2: {
+    title: '#활력형',
+    name: '힙한 하마',
+    description: '헤드폰을 끼고 로파이 음악을 들으며 쿨함을 시전하는 감성적 하마입니다.'
+  },
+  3: {
+    title: '#예술가형',
+    name: '괴짜 거북이',
+    description: '등껍질 위에 낙서를 잔뜩 해놓고 다니는 예술가 기질의 거북이입니다.'
   }
+};
+
+// 카드 클릭 시 팝업
+function handleCardClick(cardId) {
+  const card = cardData[cardId];
+  openDialog(
+    card.title,
+    `[${card.name}]<br>${card.description}`
+  );
 }
 
 // 다시 시작
 function handleClickRestartBtn() {
-  openDialog("처음부터 다시하기", "무디멀을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.", () => {
-        console.log("emitting restart-analyze event.");
-        localStorage.setItem('serviceStatus', 'restart');
-        localStorage.setItem('moodimalResult', null);
-        localStorage.setItem('ocrResult', null);
-        emit('restart-analyze'); 
-      }
-    )
-}
-
-// 이미지 캡처 및 다운로드 //
-// 캡처 프로세스 시작 함수
-async function startCaptureProcess() {
-  loading.value = true; // 로딩 종료
-  await captureAndSetImage(); // 캡처 실행
-  loading.value = false; // 로딩 종료
-}
-
-async function captureAndSetImage() {
-  if (!captureRef.value) {
-    console.error("캡처할 요소가 존재하지 않습니다.");
-    toastMessage.value = "캡처할 요소가 없습니다.";
-    showToast.value = true;
-    return;
-  }
-
-  try {
-    const canvas = await html2canvas(captureRef.value, {
-      allowTaint: true,
-      useCORS: true, 
-      scale: window.devicePixelRatio || 2, // 고해상도 지원
-      logging: true,  
-      width: captureRef.value.offsetWidth,  
-      height: captureRef.value.offsetHeight,
-      backgroundColor: null
-    });
-
-    const dataUrl = canvas.toDataURL("image/png");
-    capturedImage.value = dataUrl; // Vue 상태 업데이트
-
-    console.log("캡처 완료 및 Base64 URL 생성");
-
-  } catch (error) {
-    console.error("캡처 중 오류 발생:", error.message);
-    toastMessage.value = "캡처 중 오류가 발생했습니다.";
-    showToast.value = true;
-  }
-}
-
-async function downloadImage(dataUrl) {
-  if (!dataUrl) {
-    console.error("이미지 데이터가 없습니다.");
-    toastMessage.value = "다운로드할 이미지가 없습니다.";
-    showToast.value = true;
-    return;
-  }
-
-  try {
-    const link = document.createElement("a");
-    link.href = dataUrl;
-    link.download = "moodimal-result.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    toastMessage.value = "이미지 다운로드가 시작되었습니다.";
-    showToast.value = true;
-
-  } catch (error) {
-    console.error("이미지 다운로드 중 오류 발생:", error);
-    toastMessage.value = "이미지 다운로드에 실패했습니다.";
-    showToast.value = true;
-  }
-}
-
-
-// 클립보드에 이미지 복사
-async function handleClickCopyBtn() {
-  const textToCopy = `[🦉둥지동지🐥]\n한 장의 이미지로 룸메이트 구하기!\nhttps://ebee1205.github.io${import.meta.env.BASE_URL}`;
-  try {
-    await navigator.clipboard.writeText(textToCopy);
-    console.log('Text copied to clipboard');
-    openDialog(
-    `클립보드에 복사됨`,
-    `[🦉둥지동지🐥]<br>한 장의 이미지로 룸메이트 구하기!<br>https://ebee1205.github.io${import.meta.env.BASE_URL}`,
-    )
-  } catch (err) {
-    console.error('Failed to copy text: ', err);
-    openDialog('클립보드 복사 실패', '해당 브라우저에서는 클립보드 복사를 지원하지 않습니다.');
-  }
+  console.log("emitting restart-analyze event.");
+  localStorage.setItem('serviceStatus', 'restart');
+  localStorage.setItem('moodimalResult', null);
+  localStorage.setItem('ocrResult', null);
+  emit('restart-analyze'); 
 }
 
 // 다이얼로그 유틸
-function openDialog(title, text, onConfirm) {
+function openDialog(title, text, onConfirm = null) {
   dialog.value.title = title;
   dialog.value.text = text;
   dialog.value.okButton = onConfirm;
   dialog.value.dialogActive = true;
 }
-
-// 스낵바 유틸
-function handleSnackbarClose(value) {
-  if (!value) {
-    showToast.value = false; // 상태를 false로 리셋
-    console.log("Snackbar 닫힘");
-  }
-}
-
 </script>
 
 <style scoped>
+/* 페이지 헤더 */
+.page-title {
+  color: #000000;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.page-subtitle {
+  color: #666666;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+}
+
+/* 검색창 - placeholder 진하게 */
+.search-input {
+  font-size: 14px;
+  letter-spacing: -0.3px;
+}
+
+/* 무디멀 카드 */
+.moodimal-card {
+  background: #FFFFFF;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.card-image {
+  border-radius: 18px;
+}
+
+/* 날짜 버튼 (카드 외부) */
+.date-btn {
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+  text-transform: none;
+  box-shadow: none !important;
+}
+
+/* 다시 시작하기 버튼 - End.vue와 동일 */
 .text-btn {
   color: #FFF;
   text-align: center;
@@ -359,23 +281,24 @@ function handleSnackbarClose(value) {
   letter-spacing: -0.5px;
 }
 
-.w-text-btn {
-  color: #000;
-  text-align: center;
-  font-size: 18px;
+/* margin-32 클래스 - 버튼 위로 올림 */
+.margin-32 {
+  margin-top: 32px;
+}
+
+/* 푸터 링크 - End.vue와 동일 */
+.link-label {
+  text-decoration: underline;
+  font-size: 15px;
   font-style: normal;
   font-weight: 400;
-  letter-spacing: -0.5px;
+  line-height: 20px;
+  letter-spacing: -0.4px;
+  color: #404040;
+  cursor: pointer;
 }
 
-.hidden-capture-area {
-  position: absolute;
-  top: -99999px;
-  left: -99999px;
-  opacity: 1;
-  pointer-events: none;
-}
-
+/* 다이얼로그 텍스트 */
 .text-title {
   font-size: 19.5px;
   font-style: normal;
@@ -385,49 +308,11 @@ function handleSnackbarClose(value) {
 }
 
 .text-subtitle {
-  font-size: 15x;
+  font-size: 15px;
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
   letter-spacing: -0.4px;
   color: #404040;
-}
-
-.margin-top-96 {
-  margin-top: 56px;
-}
-
-.text-label-container {
-  margin-top: 56px;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  text-align: center;
-}
-
-.text-label {
-  color: #B1B1B1;
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  letter-spacing: -0.3px;
-}
-
-.link-label {
-  text-decoration: underline;
-  font-size: 15x;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: -0.4px;
-  color: #404040;
-  cursor: pointer;
-}
-
-.chip-text {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: normal;
 }
 </style>
