@@ -1,6 +1,5 @@
 <template>
   <BoxContainer>
-    <!-- 헤더 -->
     <v-row no-gutters justify="center" class="mb-6">
       <v-col cols="12" class="text-center">
         <div class="page-title">Moodimal Archive</div>
@@ -8,7 +7,6 @@
       </v-col>
     </v-row>
 
-    <!-- 검색창 -->
     <v-row no-gutters justify="center" class="mb-4 px-4">
       <v-text-field
         v-model="searchQuery"
@@ -24,10 +22,13 @@
       </v-text-field>
     </v-row>
 
-    <!-- 카드 그리드 -->
     <v-row no-gutters class="px-4 mb-6">
-      <!-- 카드 1 -->
       <v-col cols="6" class="pa-2">
+        <v-btn 
+          variant="text" density="compact" color="#FF794C" class="link-label | mr-3"
+        >
+          2025.10.28 생성됨
+        </v-btn>
         <v-card class="moodimal-card" rounded="xl" elevation="2">
           <v-img
             :src="card1"
@@ -42,17 +43,19 @@
           @click="handleCardClick(1)"
           color="#FF794C"
           rounded="pill"
-          width="100%"
-          height="36"
+          height="24"
           class="date-btn"
           elevation="0"
-        >
-          2025.10.28 생성됨
-        </v-btn>
+          :text="cardData[1].title"
+        />
       </v-col>
 
-      <!-- 카드 2 -->
       <v-col cols="6" class="pa-2">
+        <v-btn 
+          variant="text" density="compact" color="#FF794C" class="link-label | mr-3"
+        >
+          2025.10.27 생성됨
+        </v-btn>
         <v-card class="moodimal-card" rounded="xl" elevation="2">
           <v-img
             :src="card2"
@@ -67,17 +70,19 @@
           @click="handleCardClick(2)"
           color="#FF794C"
           rounded="pill"
-          width="100%"
-          height="36"
+          height="24"
           class="date-btn"
           elevation="0"
-        >
-          2025.10.27 생성됨
-        </v-btn>
+          :text="cardData[2].title"
+        />
       </v-col>
 
-      <!-- 카드 3 -->
       <v-col cols="6" class="pa-2">
+        <v-btn 
+          variant="text" density="compact" color="#FF794C" class="link-label | mr-3"
+        >
+          2025.10.26 생성됨
+        </v-btn>
         <v-card class="moodimal-card" rounded="xl" elevation="2">
           <v-img
             :src="card3"
@@ -92,17 +97,14 @@
           @click="handleCardClick(3)"
           color="#FF794C"
           rounded="pill"
-          width="100%"
-          height="36"
+          height="24"
           class="date-btn"
           elevation="0"
-        >
-          2025.10.26 생성됨
-        </v-btn>
+          :text="cardData[3].title"
+        />
       </v-col>
     </v-row>
 
-    <!-- 다시 시작하기 버튼 (End.vue와 동일) -->
     <v-row no-gutters justify="center" class="margin-32 | pl-14 | pr-14 | pt-2">
       <v-btn 
         @click="handleClickRestartBtn"
@@ -111,15 +113,12 @@
         width="100%"
         class="text-btn"
       >
-        처음부터 다시하기
+        처음으로
       </v-btn>
     </v-row>
 
-    <!-- 푸터 링크 (End.vue와 동일) -->
+    </BoxContainer>
 
-  </BoxContainer>
-
-  <!-- 다이얼로그 -->
   <v-dialog v-model="dialog.dialogActive" width="auto">
     <v-card class="pa-2 | pb-3" rounded="lg">
       <v-card-title class="text-title | pl-4 | pr-4 | pt-4">
@@ -276,16 +275,6 @@ function openDialog(title, text, onConfirm = null) {
 }
 
 /* 푸터 링크 - End.vue와 동일 */
-.link-label {
-  text-decoration: underline;
-  font-size: 15px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 20px;
-  letter-spacing: -0.4px;
-  color: #404040;
-  cursor: pointer;
-}
 
 /* 다이얼로그 텍스트 */
 .text-title {
@@ -304,4 +293,21 @@ function openDialog(title, text, onConfirm = null) {
   letter-spacing: -0.4px;
   color: #404040;
 }
+
+.link-label {
+  /* [수정] 카드 상단 날짜 텍스트 스타일 */
+  text-decoration: none; /* 밑줄 제거 */
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.3px;
+  color: #888888; /* 색상 변경 */
+  cursor: pointer;
+  margin-bottom: 4px; /* 카드와의 간격 */
+  display: block; /* 버튼이 col 너비 전체를 차지하도록 */
+  text-align: left; /* 텍스트 왼쪽 정렬 */
+  padding-left: 4px; /* 약간의 여백 */
+}
+
 </style>
