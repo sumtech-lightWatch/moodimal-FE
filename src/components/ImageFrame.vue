@@ -14,10 +14,10 @@
             class="justify-center | align-center | text-center | mt-6"
         >
             <v-col cols=12 class="card-title">
-                침착한 침팬치
+                {{ props.result.Card_title }}
             </v-col>
             <v-col cols="12" class="card-desc | mt-3">
-                침착한 침팬지는 무리 속에서 드물게 발견되는 안정적인 개체입니다.
+                {{ props.result.Card_lore }}
             </v-col>
         </v-row>
 

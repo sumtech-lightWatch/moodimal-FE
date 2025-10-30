@@ -85,20 +85,20 @@
           no-gutters justify="start" 
           class="text-subtitle | mb-1 | margin-top-96"
         >
-          둥지동지를 제작한
+          당신의 무디멀 유형은
         </v-col>
         <v-col
           cols="12"
           no-gutters justify="start" 
           class="text-title | mb-6"
         >
-         <칸타르동방구함위원회> 를 소개합니다
+         {{ result.Content_title }}
         </v-col>
         <v-col
           cols="12"
           no-gutters justify="start" 
           class="text-subtitle | mb-5"
-          v-html="ourInfo"
+          v-html="result.Content_lore"
         >
         </v-col>
     </v-row>
@@ -207,8 +207,11 @@ const result = ref({
   Moodimal_image: "",
   Card_title: "(test) 침착한 침팬치",
   Card_lore:
+    "(test) 침착한 침팬치는 무리 속에서 드물게 발견되는 안정적인 개체입니다.",
+  Content_title: "(test) &lt;칸타르동방구함위원회&gt;를 소개합니다",
+  Content_lore:
+    "(test) 안녕하세요, 둥지동지를 제작한 예술공학부 동아리 칸타르 소속의 <b>&lt;칸타르동방구함위원회&gt;</b> 입니다.<br><br>둥지동지는 룸메이트를 빠르고 편하게 구할 수 있게 하기 위해 기획한 프로젝트입니다.<br><br>제작에 도움을 주신 예공 친구들에게 감사드리며, 모두 좋은 룸메이트를 찾으시길 바랍니다.<br>새해 복 많이 받으세요!",
 });
-
 const parsedSurvey = ref(null)
 
 // ----- 라이프 사이클 ----- //
