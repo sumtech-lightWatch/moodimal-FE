@@ -204,12 +204,12 @@ const showToast = ref(false);
 
 const result = ref({
   Moodimal_image: "",
+  Moodimal_type: "",
   Card_title: "",
   Card_lore: "",
   Content_title: "",
   Content_lore: ""
 });
-const parsedSurvey = ref(null)
 
 // ----- 라이프 사이클 ----- //
 onBeforeMount(() => {
@@ -217,7 +217,7 @@ onBeforeMount(() => {
 
 
 onMounted(async () => {
-  loadSurveyData();
+  loadMoodimalData();
   await nextTick(); // DOM이 렌더링 완료된 후 실행
   startCaptureProcess();
 });
@@ -227,22 +227,23 @@ onUnmounted(() => {
 })
 
 // ----- 함수 정의 ----- //
-function loadSurveyData() {
-  const existingSurvey = localStorage.getItem('userSurvey');
-  console.log('get existingSurvey', existingSurvey);
+function loadMoodimalData() {
+  const moodimalResult = JSON.parse(localStorage.getItem('moodimalResult'));
+  console.log('get moodimalResult', moodimalResult);
 
-  if (existingSurvey) {
-    parsedSurvey.value = JSON.parse(existingSurvey);
-  
-    const titleInfo = "";
-    result.value.title = titleInfo.title;
-
-    console.log('set and parse result object', result.value);
+  if (moodimalResult && moodimalResult.result) {
+    result.value = {
+      Moodimal_image: moodimalResult.Moodimal_image || "",  // 만약 API가 나중에 이미지 추가할 경우 대비
+      Moodimal_type: moodimalResult.moodimal || "",
+      Card_title: moodimalResult.result.Card_title || "",
+      Card_lore: moodimalResult.result.Card_lore || "",
+      Content_title: moodimalResult.result.Content_title || "",
+      Content_lore: moodimalResult.result.Content_lore || ""
+    };
+  } else {
+    console.warn("moodimalResult 데이터가 비어 있습니다.");
   }
 }
-
-
-
 
 // 다시 시작
 function handleClickRestartBtn() {
@@ -306,7 +307,7 @@ async function downloadImage(dataUrl) {
   try {
     const link = document.createElement("a");
     link.href = dataUrl;
-    link.download = "dung-dong-result.png";
+    link.download = "moodimal-result.png";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
