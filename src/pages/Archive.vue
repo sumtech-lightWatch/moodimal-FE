@@ -59,7 +59,7 @@
       </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center" class="margin-32 | pl-14 | pr-14 | pt-2">
+    <v-row no-gutters justify="center" class="margin-32 | pl-14 | pr-14 | pt-2 | mb-12">
       <v-btn 
         @click="handleClickRestartBtn"
         color="#FF794C" 
