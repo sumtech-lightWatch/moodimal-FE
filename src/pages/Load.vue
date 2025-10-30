@@ -90,7 +90,7 @@ const emit = defineEmits(['restart-analyze']);
 const title = '이미지 분석 중...'
 const desc = '당신의 SNS 무디멀 유형은?<br>SNS 이미지를 분석하고 있어요.'
 
-// 순환할 텍스트 배열
+// TODO UX라이팅 순환할 텍스트 배열
 const infoTexts = ref([
   "침착한 침팬지는 무리 속에서 드물게 발견되는 안정적인 개체입니다...",
   "당신의 SNS 패턴을 분석하고 있습니다...",
