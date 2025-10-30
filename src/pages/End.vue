@@ -12,16 +12,18 @@
           "
         >
 
-          <!-- 핸드아웃 -->
           <div ref="captureRef"  class="hidden-capture-area">
-            <ImageFrame :loading="loading"></ImageFrame>
+            <ImageFrame 
+              :loading="loading" 
+              @image-ready="startCaptureProcess"
+            ></ImageFrame>
           </div>
 
-          <!-- <v-img
+          <v-img
             :src="capturedImage"
             cover
-          ></v-img> -->
-<ImageFrame :loading="loading"></ImageFrame>
+          ></v-img>
+
       </v-col>
     </v-row>
 
@@ -57,25 +59,6 @@
     </v-row>
 
     <v-row no-gutters>    
-          <!-- <v-card
-      class="mx-auto | margin-top-56 | pt-2 pl-4 pr-4"
-      max-width="320" rounded="lg"
-    >
-      <v-card-title class="card-title-text">
-        <v-icon icon="mdi-information | pb-1 | mr-1"></v-icon>
-        응답내용 수집 안내
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text>
-        <div style="text-align: left; letter-spacing: -0.5px;">
-          본 서비스는 품질 향상과 인사이트 도출을 위해 
-          응답을 수집하여 통계 및 분석에 활용합니다. 
-          <br>위 내용은 해당 목적 외에는 사용되지 않으며, 
-          관련 법령을 준수하여 안전하게 관리됩니다.
-        </div>
-      </v-card-text>
-    </v-card> -->
-
         <v-col
           cols="12"
           no-gutters justify="start" 
@@ -123,36 +106,10 @@
     </v-row>
   </BoxContainer>
 
-  <!-- 다이얼로그 -->
   <v-dialog v-model="dialog.dialogActive" width="auto">
-    <v-card class="pa-2 | pb-3" rounded="lg">
-      <v-card-title class="text-title | pl-4 | pr-4 | pt-4">
-        <v-row style="justify-content: start; align-items: center;">
-          <v-col class="pt-0 | pb-0 | pl-4 | pr-1" cols="auto">
-            <v-img
-              src="@/assets/logo.png"
-              height="24"
-              width="24"
-              class=""
-            ></v-img>
-          </v-col>
-          <v-col class="pl-1" cols="auto">
-            {{ dialog.title }}
-          </v-col>
-        </v-row>
-      </v-card-title>
-      <v-card-text class="text-subtitle | pl-4 | pr-4 | pt-2 | pb-3" v-html="dialog.text"></v-card-text>
-      <template v-slot:actions>
-          <v-row no-gutters justify="end">
-              <v-btn color="#FF794C" width="25%" rounded="xl" variant="outlined" @click="dialog.dialogActive = false">닫기</v-btn>
-              <v-btn v-if="dialog.okButton" color="#FF794C" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
-          </v-row>
-      </template>
-    </v-card>
-  </v-dialog>
+    </v-dialog>
 
 
-  <!-- 스낵바 -->
   <v-snackbar
     v-model="showToast"
     :timeout="3000"
@@ -161,43 +118,33 @@
     class="mb-12"
     @update:model-value="handleSnackbarClose"
   >
-    <v-icon color="info" icon="mdi-information" class="mr-2"></v-icon>
-    {{ toastMessage }}
-  </v-snackbar>
+    </v-snackbar>
 
 </template>
 
 <script setup>
 // ----- 선언부 ----- //
 import { onMounted, onUnmounted, onBeforeMount, ref, nextTick} from "vue";
-
 import axios from "axios";
-
 import html2canvas from "html2canvas";
 import Util from "@/common/Util.js"
-
 import BoxContainer from "@/components/BoxContainer.vue";
 import ImageFrame from "@/components/ImageFrame.vue";
 
 const emit = defineEmits(['restart-analyze']);
-
 const title = '짜잔! 결과 이미지가 나왔어요.'
 const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
-
 const dialog = ref({
   title: '',
   text: '',
   isActive: false,
   okButton() {}
 });
-
-const loading = ref(true); // 로딩 상태 관리
-const captureRef = ref(null); // 캡처할 컴포넌트의 참조
-const capturedImage = ref(''); // 캡처된 이미지의 URL 저장
-
+const loading = ref(true); 
+const captureRef = ref(null); 
+const capturedImage = ref(''); 
 const toastMessage = ref("");
 const showToast = ref(false); 
-
 const result = ref({
   Moodimal_type: "",
   Content_title: "",
@@ -212,21 +159,17 @@ onBeforeMount(() => {
 onMounted(async () => {
   localStorage.setItem('serviceStatus', 'end');
   loadMoodimalData();
-  await nextTick(); // DOM이 렌더링 완료된 후 실행
-  startCaptureProcess();
+  // onMounted에서 캡처 호출 제거 (이벤트 기반으로 변경됨)
 });
 
 onUnmounted(() => {
-
 })
 
 // ----- 함수 정의 ----- //
 function loadMoodimalData() {
   const moodimalResult = JSON.parse(localStorage.getItem('moodimalResult'));
   console.log('get moodimalResult', moodimalResult.value);
-
   if (moodimalResult && moodimalResult.result) { 
-    //TODO null 체크
     result.value = {
       Content_title: moodimalResult.result.Content_title || "",
       Content_lore: moodimalResult.result.Content_lore || ""
@@ -237,7 +180,6 @@ function loadMoodimalData() {
   }
 }
 
-// 다시 시작
 function handleClickRestartBtn() {
   openDialog("처음부터 다시하기", "무디멀을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.", () => {
         console.log("emitting restart-analyze event.");
@@ -249,12 +191,19 @@ function handleClickRestartBtn() {
     )
 }
 
-// 이미지 캡처 및 다운로드 //
-// 캡처 프로세스 시작 함수
+// ----- [수정된 캡처 로직] ----- //
+
 async function startCaptureProcess() {
-  loading.value = true; // 로딩 종료
+  console.log("End.vue: 'image-ready' 이벤트 수신. 캡처를 시작합니다.");
+  loading.value = true; 
+
+  // v-img가 로드 이벤트를 발생시킨 후 브라우저가 페인팅할 시간을 줍니다.
+  // 50ms보다 100ms가 더 안정적일 수 있습니다.
+  await new Promise(resolve => setTimeout(resolve, 100)); 
+
   await captureAndSetImage(); // 캡처 실행
-  loading.value = false; // 로딩 종료
+  
+  // loading.value = false; // captureAndSetImage의 finally에서 처리
 }
 
 async function captureAndSetImage() {
@@ -262,22 +211,47 @@ async function captureAndSetImage() {
     console.error("캡처할 요소가 존재하지 않습니다.");
     toastMessage.value = "캡처할 요소가 없습니다.";
     showToast.value = true;
+    loading.value = false; // 로딩 종료
     return;
   }
+  
+  const el = captureRef.value;
+  
+  // [수정] 캡처를 위해 일시적으로 화면에 표시 (스타일 변경)
+  // 1. 기존 스타일 저장
+  const originalStyle = { 
+    position: el.style.position, 
+    top: el.style.top, 
+    left: el.style.left,
+    opacity: el.style.opacity,
+    zIndex: el.style.zIndex,
+    pointerEvents: el.style.pointerEvents
+  };
+  
+  // 2. 캡처를 위해 스타일 변경 (화면 최상단, 맨 위로, 보이게)
+  el.style.position = 'absolute';
+  el.style.top = '0px';
+  el.style.left = '0px';
+  el.style.opacity = '1'; 
+  el.style.zIndex = '1000'; 
+  el.style.pointerEvents = 'none';
+  
+  // 스타일이 적용되도록 nextTick 대기
+  await nextTick();
 
   try {
-    const canvas = await html2canvas(captureRef.value, {
-      allowTaint: true,
-      useCORS: true, 
-      scale: window.devicePixelRatio || 2, // 고해상도 지원
+    const canvas = await html2canvas(el, {
+      // allowTaint: true, // [수정] data: URI에는 불필요하며 toDataURL을 막을 수 있으므로 제거
+      useCORS: true, //
+      scale: window.devicePixelRatio || 2, 
       logging: true,  
-      width: captureRef.value.offsetWidth,  
-      height: captureRef.value.offsetHeight,
+      width: el.offsetWidth,  
+      height: el.offsetHeight,
       backgroundColor: null
     });
 
     const dataUrl = canvas.toDataURL("image/png");
-    capturedImage.value = dataUrl; // Vue 상태 업데이트
+    capturedImage.value = dataUrl; 
 
     console.log("캡처 완료 및 Base64 URL 생성");
 
@@ -285,13 +259,25 @@ async function captureAndSetImage() {
     console.error("캡처 중 오류 발생:", error.message);
     toastMessage.value = "캡처 중 오류가 발생했습니다.";
     showToast.value = true;
+  } finally {
+    // [수정] 캡처 후 요소를 다시 원래 스타일로 숨김
+    el.style.position = originalStyle.position;
+    el.style.top = originalStyle.top;
+    el.style.left = originalStyle.left;
+    el.style.opacity = originalStyle.opacity;
+    el.style.zIndex = originalStyle.zIndex;
+    el.style.pointerEvents = originalStyle.pointerEvents;
+    
+    loading.value = false; // 로딩 종료
   }
 }
+// ----- [캡처 로직 수정 끝] ----- //
+
 
 async function downloadImage(dataUrl) {
-  if (!dataUrl) {
-    console.error("이미지 데이터가 없습니다.");
-    toastMessage.value = "다운로드할 이미지가 없습니다.";
+  if (!dataUrl || dataUrl === 'data:,') { 
+    console.error("이미지 데이터가 없습니다. (캡처 실패)");
+    toastMessage.value = "다운로드할 이미지가 없습니다. (캡처 실패)";
     showToast.value = true;
     return;
   }
@@ -350,6 +336,8 @@ function handleSnackbarClose(value) {
 </script>
 
 <style scoped>
+/* ... (text-btn, w-text-btn 등 다른 스타일은 동일) ... */
+
 .text-btn {
   color: #FFF;
   text-align: center;
@@ -368,12 +356,17 @@ function handleSnackbarClose(value) {
   letter-spacing: -0.5px;
 }
 
+/* [수정 없음]
+   이 CSS는 캡처 로직과 연동되어
+   JS가 일시적으로 이 스타일을 덮어쓰고 캡처 후 복원합니다.
+*/
 .hidden-capture-area {
   position: absolute;
-  top: -99999px;
-  left: -99999px;
-  opacity: 1;
-  pointer-events: none;
+  top: 0;
+  left: 0;
+  opacity: 0; /* 보이지 않게 */
+  pointer-events: none; /* 클릭/마우스 이벤트 방지 */
+  z-index: -1; /* 다른 요소들 뒤로 숨김 */
 }
 
 .text-title {
