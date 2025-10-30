@@ -111,6 +111,7 @@ function initSurvey() {
   localStorage.setItem('serviceStatus', 'home');
   localStorage.setItem('ocrResult', '');
   localStorage.setItem('moodimalResult', '');
+  sessionStorage.setItem('uploadImg', null);
 
   console.log("init localStorage:", localStorage.getItem('serviceStatus'))
 }
