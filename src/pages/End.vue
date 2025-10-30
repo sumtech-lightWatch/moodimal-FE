@@ -22,7 +22,7 @@
       </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center | mt-3 | mb-8">
+    <!-- <v-row no-gutters justify="center | mt-3 | mb-8">
       <v-chip
         prepend-icon="mdi-arrow-up"
         append-icon="mdi-arrow-up"
@@ -32,32 +32,36 @@
       >
         꾹 눌러 저장하기
       </v-chip>
+    </v-row> -->
+
+
+    <v-row no-gutters justify="center | mt-3 | mb-8">
+      <v-col cols="auto">
+        <v-btn 
+          variant="text" density="compact" class="link-label"
+          @click="downloadImage(capturedImage)"
+        >
+          이미지 다운로드
+        </v-btn>
+      </v-col>
     </v-row>
 
     <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14">
       <v-btn 
-        @click="downloadImage(capturedImage)"
+        @click="handleClickGoToArchive"
         color="#FFFFFF" rounded="xl" width="100%"
         class="w-text-btn"
       >
-        이미지 다운로드
+        다른 무디멀 구경하기
       </v-btn>
     </v-row>
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-2">
-      <v-btn 
-        @click="handleClickRestartBtn"
-        color="#FF794C" rounded="xl" width="100%"
-        class="text-btn"
-      >
-        처음부터 다시하기
-      </v-btn>
-    </v-row>
+
 
     <v-row no-gutters>    
         <v-col
           cols="12"
           no-gutters justify="start" 
-          class="text-subtitle | mb-1 | margin-top-96"
+          class="text-subtitle | mb-4 | margin-top-96"
         >
           당신의 무디멀 유형은
         </v-col>
@@ -77,7 +81,16 @@
         </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center" class="margin-48 | mb-8 | pl-14 | pr-14">
+    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14"> 
+      <v-btn 
+        @click="handleClickRestartBtn"
+        color="#FF794C" rounded="xl" width="100%"
+        class="text-btn"
+      >
+        처음부터 다시하기
+      </v-btn>
+    </v-row>
+    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-3 | mb-8">
       <v-btn 
         @click="handleClickCopyBtn"
         color="#FFFFFF" rounded="xl" width="100%" 
@@ -85,8 +98,9 @@
       >
         <img src="@/assets/logo.svg" alt="Roommate Search" style="height: 26px; width: 64px; margin-right: 4px;">
         알리기
-      </v-btn>  
+      </v-btn> 
     </v-row>
+
     <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
       <v-col cols="auto">
         <v-btn variant="text" density="compact" href="https://github.com/Ebee1205/DungDong?tab=readme-ov-file#-%EC%9E%91%EC%97%85%EA%B8%B0" target="_blank" class="link-label | mr-3">
@@ -152,6 +166,10 @@ import Util from "@/common/Util.js"
 import BoxContainer from "@/components/BoxContainer.vue";
 import ImageFrame from "@/components/ImageFrame.vue";
 
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
 const emit = defineEmits(['restart-analyze']);
 const title = '짜잔! 결과 이미지가 나왔어요.'
 const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
@@ -209,6 +227,10 @@ function handleClickRestartBtn() {
         emit('restart-analyze'); 
       }
     )
+}
+
+function handleClickGoToArchive() {
+  router.push('/archive');
 }
 
 // ----- [수정된 캡처 로직] ----- //
