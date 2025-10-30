@@ -204,8 +204,9 @@ const toastMessage = ref("");
 const showToast = ref(false); 
 
 const result = ref({
-  title:  null,           // 기숙사 숫자 int
-  img: "",              // 생성된 이미지 URL
+  Moodimal_image: "",
+  Card_title: "(test) 침착한 침팬치",
+  Card_lore:
 });
 
 const parsedSurvey = ref(null)
