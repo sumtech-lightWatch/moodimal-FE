@@ -77,7 +77,8 @@
 
 <script setup>
 // ----- 선언부 ----- //
-import { onMounted, onUnmounted, onBeforeMount, ref, nextTick} from "vue";
+import { onMounted, onUnmounted, onBeforeMount, ref, nextTick } from "vue";
+import { useRouter } from "vue-router"; 
 
 import axios from "axios";
 import Util from "@/common/Util.js"
@@ -85,6 +86,8 @@ import Util from "@/common/Util.js"
 import BoxContainer from "@/components/BoxContainer.vue";
 
 const emit = defineEmits(['restart-analyze']);
+
+const router = useRouter(); 
 
 const title = '이미지 분석 중...'
 const desc = '당신의 SNS 무디멀 유형은?<br>SNS 이미지를 분석하고 있어요.'
@@ -106,61 +109,79 @@ let textInterval = null;
 const dialog = ref({
   title: '',
   text: '',
-  isActive: false,
+  dialogActive: false, 
   okButton() {}
 });
 
-const loading = ref(true); // 로딩 상태 관리
-
+const loading = ref(true);
 const toastMessage = ref("");
 const showToast = ref(false); 
 
-const ocrResult = ref("");
-
 // ----- 라이프 사이클 ----- //
-onBeforeMount(() => {
-});
-
 onMounted(async () => {
-  // 텍스트 전환 시작 (1초마다)
+  // 텍스트 전환 시작 (2초마다)
   textInterval = setInterval(() => {
     currentTextIndex.value = (currentTextIndex.value + 1) % infoTexts.value.length;
   }, 2000);
 
-  getOcrResultData();
-  generateLLMAnalyze();
+  const text = getOcrTextFromLocalStorage();
+  if (!text) {
+    openDialog('알림', 'OCR 결과가 없습니다. 처음부터 다시 시도해주세요.', () => {
+      dialog.value.dialogActive = false;
+      router.push('/'); // 필요 시 시작 화면으로
+    });
+    return;
+  }
+
+  // 2) LLM 분석 호출 → 3) 완료 시 /end로 이동
+  try {
+    await generateLLMAnalyze(text);
+    router.push('/end'); 
+  } catch (err) {
+    console.error('[Load] LLM 분석 실패:', err);
+    openDialog('오류', '결과를 불러오는 중 오류가 발생했습니다.', () => {
+      dialog.value.dialogActive = false;
+    });
+  }
 
   await nextTick();
-  
 });
 
 onUnmounted(() => {
-  if (textInterval) {
-    clearInterval(textInterval);
-  }
-  if (statusCheckInterval) {
-    clearInterval(statusCheckInterval);
-  }
-})
+  if (textInterval) clearInterval(textInterval);
+});
 
 // ----- 함수 정의 ----- //
 
-function getOcrResultData() {
+// OCR 결과에서 텍스트만 뽑기
+function getOcrTextFromLocalStorage() {
   try {
-    ocrResult.value = localStorage.getItem('ocrResult');
-    if (!ocrResult.value) return;
+    const raw = localStorage.getItem('ocrResult');
+    if (!raw) return '';
 
-    console.log('get ocrResult', ocrResult.value);
+    // 문자열이면 그대로 시도, JSON이면 파싱
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = raw; // 순수 텍스트로 저장된 경우
+    }
 
+    const text =
+      typeof parsed === 'string'
+        ? parsed
+        : (parsed?.data?.text ?? parsed?.ParsedText ?? parsed?.text ?? '');
+
+    return (text || '').toString().trim();
   } catch (e) {
-    console.error('fail get ocrResult error:', e);
+    console.error('fail get ocrResult:', e);
+    return '';
   }
 }
 
 // generate/llm/analyze
 async function generateLLMAnalyze(text) {
   const tid = Date.now();
-
   const url = '/api/v1/generate/llm/analyze';
   const payload = { tid, text: String(text || '') };
 
@@ -170,21 +191,30 @@ async function generateLLMAnalyze(text) {
     body: JSON.stringify(payload),
   });
 
+  if (!res.ok) {
+    const msg = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status} ${msg}`);
+  }
+
   const result = await res.json();
 
-  const data = result?.data ?? result;
+  // status 프로토콜 확인(S0000 아니면 에러 처리)
+  const code = result?.status?.code ?? 'E0500';
+  if (code !== 'S0000') {
+    throw new Error(`API ${code}: ${result?.status?.msg || 'unknown error'}`);
+  }
+
+  // result.data만 저장
+  const data = result?.data ?? {};
   const value = typeof data === 'string' ? data : JSON.stringify(data);
   localStorage.setItem('moodimalResult', value);
-
-  return data; 
 }
-
 
 // 다이얼로그 유틸
 function openDialog(title, text, onConfirm) {
   dialog.value.title = title;
   dialog.value.text = text;
-  dialog.value.okButton = onConfirm;
+  dialog.value.okButton = typeof onConfirm === 'function' ? onConfirm : () => {};
   dialog.value.dialogActive = true;
 }
 
@@ -195,8 +225,8 @@ function handleSnackbarClose(value) {
     console.log("Snackbar 닫힘");
   }
 }
-
 </script>
+
 
 <style scoped>
 .text-title {
