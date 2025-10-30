@@ -116,18 +116,7 @@
     </v-row>
 
     <!-- 푸터 링크 (End.vue와 동일) -->
-    <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
-      <v-col cols="auto">
-        <v-btn variant="text" density="compact" href="https://github.com/Ebee1205/DungDong?tab=readme-ov-file#-%EC%9E%91%EC%97%85%EA%B8%B0" target="_blank" class="link-label | mr-3">
-          둥동 작업기
-        </v-btn>
-      </v-col>
-      <v-col cols="auto">
-        <v-btn variant="text" density="compact" href="https://github.com/Ebee1205/DungDong?tab=readme-ov-file#-%ED%95%A8%EA%BB%98%ED%95%9C-%EC%82%AC%EB%9E%8C%EB%93%A4" target="_blank" class="link-label">
-          제작자 소개
-        </v-btn>
-      </v-col>
-    </v-row>
+
   </BoxContainer>
 
   <!-- 다이얼로그 -->
