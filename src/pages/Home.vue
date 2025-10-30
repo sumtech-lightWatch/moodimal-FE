@@ -106,11 +106,11 @@ const dialog = ref({
 });
 
 const uploadedFile = ref(null);   
-const uploading = ref(false);     
+const uploading = ref(false);    
 
+// TODO 최초 시작시 초기화
 onMounted(() => {
   emit('hide-appbar');
-
 });
 
 // ----- 함수 정의 ----- //
@@ -147,7 +147,7 @@ async function handleClickStartBtn() {
     setServiceStatus('ocr');
 
     // 로딩 화면으로 이동
-    router.push({ name: 'Load' });
+    router.push("/loading");
 
     // OCR 요청
     const tid = Date.now();
@@ -164,6 +164,7 @@ async function handleClickStartBtn() {
   }
 }
 
+// generate/ocr/text
 async function generateOcrText(file, tid) {
   const formData = new FormData();
   formData.append('tid', String(tid));
