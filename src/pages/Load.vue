@@ -73,21 +73,18 @@
 </template>
 
 <script setup>
-// ----- 선언부 ----- //
-import { onMounted, onUnmounted, onBeforeMount, ref, nextTick } from "vue";
+import { onMounted, onUnmounted, ref, nextTick } from "vue";
 import { useRouter } from "vue-router"; 
 import axios from "axios";
 import Util from "@/common/Util.js";
-
 import BoxContainer from "@/components/BoxContainer.vue";
 
 const emit = defineEmits(['restart-analyze']);
 const router = useRouter(); 
 
 const title = '이미지 분석 중...'
-const desc = '당신의 SNS 무디멀 유형은?<br>SNS 이미지를 분석하고 있어요.'
+const desc = '당신의 SNS 무디멀 유형은?<br>SNS 이미지를 분석하고 있어요.';
 
-// TODO UX라이팅 순환할 텍스트 배열
 const infoTexts = ref([
   "당신의 마음 속 무디멀스를 찾아가고 있어요...",
   "쉿, 당신의 무디멀이 둥지에서 나올 준비를 하고 있어요...",
@@ -109,53 +106,66 @@ const dialog = ref({
 });
 
 const imageSrc = ref('https://placehold.co/600x400');
-const imageHeight = ref(400); // 이미지 높이 저장
-
+const imageHeight = ref(400);
 const loading = ref(true);
 const toastMessage = ref("");
 const showToast = ref(false); 
 
-// ----- 라이프 사이클 ----- //
 onMounted(async () => {
-  // 0) 업로드된 이미지 유무 먼저 검사 → 없으면 팝업 후 홈으로 이동
+  // (1) 업로드된 이미지 유무 확인
   const saved = sessionStorage.getItem('uploadImg');
   if (!saved) {
     openDialog('알림', '업로드된 이미지가 없습니다. 처음부터 다시 시도해주세요.', () => {
       dialog.value.dialogActive = false;
-      router.push('/'); // 시작 화면으로
+      router.push('/');
     });
     return;
   }
 
-  // 업로드 이미지가 있으면 미리보기/높이 계산
+  // (2) 이미지 미리보기 세팅
   imageSrc.value = saved;
   await nextTick();
   const img = new Image();
   img.onload = () => {
     const imgElement = document.querySelector('.scan-image');
-    if (imgElement) {
-      imageHeight.value = imgElement.offsetHeight;
-    }
+    if (imgElement) imageHeight.value = imgElement.offsetHeight;
   };
   img.src = saved;
 
-  // 텍스트 전환 시작 (2초마다)
+  // (3) 안내 문구 순환
   textInterval = setInterval(() => {
     currentTextIndex.value = (currentTextIndex.value + 1) % infoTexts.value.length;
   }, 2000);
 
-  // OCR 텍스트는 팝업 없이 그대로 시도 (빈 문자열 가능)
+  // (4) OCR 결과 텍스트 불러오기
   const text = getOcrTextFromLocalStorage();
 
-  // 2) LLM 분석 호출 → 3) 완료 시 /end로 이동
   try {
+    // (5) LLM 분석 호출
     await generateLLMAnalyze(text);
+
+    // (6) moodimalResult에서 moodimal 추출
+    const moodimalRaw = localStorage.getItem('moodimalResult');
+    let moodimalName = '';
+    try {
+      const parsed = JSON.parse(moodimalRaw);
+      moodimalName = parsed?.moodimal || parsed?.data?.moodimal || '';
+    } catch {
+      moodimalName = '';
+    }
+
+    // (7) moodimal 값이 있으면 이미지 생성 호출
+    if (moodimalName) {
+      await generateMoodimalImage(moodimalName);
+    }
+
+    // (8) 완료 시 end 페이지로 이동
     router.push('/end'); 
   } catch (err) {
     console.error('[Load] LLM 분석 실패:', err);
     openDialog('오류', '결과를 불러오는 중 오류가 발생했습니다.', () => {
       dialog.value.dialogActive = false;
-      router.push('/'); // 필요 시 시작 화면으로
+      router.push('/');
     });
   }
 
@@ -166,27 +176,21 @@ onUnmounted(() => {
   if (textInterval) clearInterval(textInterval);
 });
 
-// ----- 함수 정의 ----- //
-
-// OCR 결과에서 텍스트만 뽑기
+// OCR 결과 텍스트 추출
 function getOcrTextFromLocalStorage() {
   try {
     const raw = localStorage.getItem('ocrResult');
     if (!raw) return '';
-
-    // 문자열이면 그대로 시도, JSON이면 파싱
     let parsed;
     try {
       parsed = JSON.parse(raw);
     } catch {
-      parsed = raw; // 순수 텍스트로 저장된 경우
+      parsed = raw;
     }
-
     const text =
       typeof parsed === 'string'
         ? parsed
         : (parsed?.data?.text ?? parsed?.ParsedText ?? parsed?.text ?? '');
-
     return (text || '').toString().trim();
   } catch (e) {
     console.error('fail get ocrResult:', e);
@@ -194,7 +198,7 @@ function getOcrTextFromLocalStorage() {
   }
 }
 
-// generate/llm/analyze
+// LLM 분석 호출
 async function generateLLMAnalyze(text) {
   const tid = Date.now();
   const url = '/api/v1/generate/llm/analyze';
@@ -206,23 +210,46 @@ async function generateLLMAnalyze(text) {
     body: JSON.stringify(payload),
   });
 
-  if (!res.ok) {
-    const msg = await res.text().catch(() => '');
-    throw new Error(`HTTP ${res.status} ${msg}`);
-  }
-
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const result = await res.json();
-
-  // status 프로토콜 확인(S0000 아니면 에러 처리)
   const code = result?.status?.code ?? 'E0500';
-  if (code !== 'S0000') {
-    throw new Error(`API ${code}: ${result?.status?.msg || 'unknown error'}`);
-  }
+  if (code !== 'S0000') throw new Error(`API ${code}: ${result?.status?.msg}`);
 
-  // result.data만 저장
   const data = result?.data ?? {};
   const value = typeof data === 'string' ? data : JSON.stringify(data);
   localStorage.setItem('moodimalResult', value);
+}
+
+// 무디멀 이미지 생성 호출
+async function generateMoodimalImage(moodimalName) {
+  const tid = Date.now();
+  const url = '/api/v1/generate/llm/img_general';
+  const payload = {
+    tid,
+    moodimal: moodimalName
+  };
+
+  console.log('[IMG_GEN] 요청 payload:', payload);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) throw new Error(`이미지 생성 실패 (${res.status})`);
+
+    const result = await res.json();
+    console.log('[IMG_GEN] 생성 결과:', result);
+
+    // base64 이미지가 있으면 로컬스토리지에 저장
+    if (result?.data?.image) {
+      localStorage.setItem('moodimalImage', result.data.image);
+    }
+  } catch (err) {
+    console.error('[IMG_GEN] 이미지 생성 중 오류:', err);
+  }
 }
 
 // 다이얼로그 유틸
