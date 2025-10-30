@@ -124,30 +124,6 @@ function initSurvey() {
   console.log("set localStorage appInitialized:", localStorage.getItem('appInitialized'))
 }
 
-function handleClickGoPage(state) {
-  switch (state) {
-    case "home":
-      openDialog(
-        '처음으로 돌아가기',
-        '처음 화면으로 돌아갑니다.<br>현재까지 작성한 내용은 초기화됩니다.',
-        emitRestartAnalyze
-      )
-      break;
-
-    case "finish":
-      openDialog(
-        '이미지 생성하기',
-        '설문조사를 끝내고 이미지를 생성할까요?<br>물론, 다시 돌아와 수정할 수 있습니다.',
-        submitSurveyToFB
-      )
-      break;
-
-    default:
-      console.warn("Invalid state:", state);
-      break;
-  }
-};
-
 function emitHideAppbar() {
   console.log('Event Received: hide appbar');
   sFooter.value = false;
@@ -197,68 +173,6 @@ async function generateImageFromText(text) {
     // 로딩 UI 숨김 (필요 시)
   }
 }
-
-// 수정: 파이어베이스 제출 함수
-async function submitSurveyToFB() {
-  const existingSurvey = localStorage.getItem('userSurvey');
-  console.log('get existingSurvey', existingSurvey);
-
-  if (existingSurvey) {
-    const parseSurvey = JSON.parse(existingSurvey);
-
-    // 1. TextToImg 페이지에서 입력한 텍스트가 있는지 확인
-    if (route.path === '/text2img' && parseSurvey.notes) {
-      // 2. 이미지 생성 API 호출
-      const generatedUrl = await generateImageFromText(parseSurvey.notes);
-      if (generatedUrl) {
-        // 3. 반환된 이미지 URL을 survey 객체에 저장
-        parseSurvey.imageUrl = generatedUrl;
-      }
-    }
-
-    // 4. 최종 데이터로 FB에 저장 또는 업데이트
-    if (!lastDocumentId.value) {
-      await submitSurvey(parseSurvey);
-    } else {
-      await updateSurvey(parseSurvey);
-    }
-  } else {
-    console.error("No survey data to submit.");
-    return;
-  }
-
-  dialog.value.dialogActive = false;
-  router.push("/end");
-}
-
-// 설문 데이터를 Firestore에 저장하는 함수
-const submitSurvey = async (survey) => {
-  console.log(typeof survey, survey);
-  try {
-    const docRef = await addDoc(collection(db, "surveys"), survey);
-    console.log("Survey submitted successfully with ID:", docRef.id);
-    localStorage.setItem('surveyId', docRef.id);
-    lastDocumentId.value = docRef.id;  // 문서 ID 저장
-  } catch (error) {
-    console.error("Error submitting survey:", error);
-    localStorage.setItem('surveyId', null);
-  }
-};
-
-// 문서 ID를 사용하여 해당 문서를 업데이트하는 함수
-const updateSurvey = async (updates) => {
-  if (!lastDocumentId.value) {
-    console.error("No document ID found. Submitting a survey first.");
-    return;
-  }
-  try {
-    const surveyRef = doc(db, "surveys", lastDocumentId.value);
-    await updateDoc(surveyRef, updates);
-    console.log("Survey updated successfully with ID:", lastDocumentId.value);
-  } catch (error) {
-    console.error("Error updating survey:", error);
-  }
-};
 
 
 </script>
