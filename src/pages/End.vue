@@ -217,6 +217,7 @@ onBeforeMount(() => {
 
 
 onMounted(async () => {
+  localStorage.setItem('serviceStatus', 'end');
   loadMoodimalData();
   await nextTick(); // DOM이 렌더링 완료된 후 실행
   startCaptureProcess();
