@@ -48,7 +48,7 @@ const props = defineProps({
 
 const result = ref(null)
 
-const getColor = ref('#FF5858'); 
+const getColor = ref('#FF794C'); 
 
 // ----- 라이프 사이클 ----- //
 onMounted(() => {
