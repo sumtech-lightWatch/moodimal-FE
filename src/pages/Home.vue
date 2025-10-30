@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row no-gutters justify="center" class="margin-88 | margin-top-100">
+    <v-row no-gutters justify="center" class="margin-88 | margin-top-75">
       <v-img 
       src="@/assets/logo.svg"
       :width="240" :height="80"
@@ -50,6 +50,17 @@
         class="text-small-btn"
       >
         결과확인하기
+      </v-btn>
+    </v-row>
+    <v-row 
+      no-gutters justify="center" class="margin-42 | mt-2"
+    >
+      <v-btn 
+        @click="handleClickGoToArchive"
+        variant="outline" color="#FF794C" rounded="xl" size="large" width="80%" height="32px"
+        class="text-small-btn"
+      >
+        다른 무디멀 구경하기
       </v-btn>
     </v-row>
   </v-container>
@@ -131,6 +142,10 @@ function fileToDataURL(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+function handleClickGoToArchive() {
+  router.push('/archive');
 }
 
 async function handleClickStartBtn() {
@@ -223,6 +238,10 @@ function openDialog(title, text, onConfirm) {
   margin-top: 52px;
 }
 
+.margin-top-75 {
+  margin-top: 75px;
+}
+
 .margin-top-100 {
   margin-top: 100px;
 }
@@ -260,7 +279,6 @@ function openDialog(title, text, onConfirm) {
 }
 
 .text-small-btn {
-  color: #FFF;
   text-align: center;
   font-size: 18px;
   font-style: normal;

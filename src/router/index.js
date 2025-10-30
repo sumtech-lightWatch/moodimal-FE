@@ -30,6 +30,11 @@ const routes = [
     name: 'End',
     component: () => import(/* webpackChunkName: "end" */ "@/pages/End")
   },
+  {
+    path: '/archive',
+    name: 'Archive',
+    component: () => import(/* webpackChunkName: "archive" */ "@/pages/Archive")
+  },
 ];
 
 const router = createRouter({

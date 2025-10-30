@@ -12,24 +12,17 @@
           "
         >
 
-          <!-- 핸드아웃 -->
-          <div ref="captureRef"  class="hidden-capture-area">
-            <ImageFrame :result="result" :loading="loading"></ImageFrame>
-          </div>
-
-          <v-img
-            v-if="!loading"
-            :src="capturedImage"
-            cover
-          ></v-img>
-          <div v-else>
-            <ImageFrame :result="result" :loading="loading"></ImageFrame>
+          <div ref="captureRef">
+            <ImageFrame 
+              :loading="loading" 
+              @image-ready="startCaptureProcess"
+            ></ImageFrame>
           </div>
 
       </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center | mt-3 | mb-8">
+    <!-- <v-row no-gutters justify="center | mt-3 | mb-8">
       <v-chip
         prepend-icon="mdi-arrow-up"
         append-icon="mdi-arrow-up"
@@ -39,51 +32,36 @@
       >
         꾹 눌러 저장하기
       </v-chip>
+    </v-row> -->
+
+
+    <v-row no-gutters justify="center | mt-3 | mb-8">
+      <v-col cols="auto">
+        <v-btn 
+          variant="text" density="compact" class="link-label"
+          @click="downloadImage(capturedImage)"
+        >
+          이미지 다운로드
+        </v-btn>
+      </v-col>
     </v-row>
 
     <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14">
       <v-btn 
-        @click="downloadImage(capturedImage)"
+        @click="handleClickGoToArchive"
         color="#FFFFFF" rounded="xl" width="100%"
         class="w-text-btn"
       >
-        이미지 다운로드
+        다른 무디멀 구경하기
       </v-btn>
     </v-row>
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-2">
-      <v-btn 
-        @click="handleClickRestartBtn"
-        color="#FF794C" rounded="xl" width="100%"
-        class="text-btn"
-      >
-        처음부터 다시하기
-      </v-btn>
-    </v-row>
+
 
     <v-row no-gutters>    
-          <!-- <v-card
-      class="mx-auto | margin-top-56 | pt-2 pl-4 pr-4"
-      max-width="320" rounded="lg"
-    >
-      <v-card-title class="card-title-text">
-        <v-icon icon="mdi-information | pb-1 | mr-1"></v-icon>
-        응답내용 수집 안내
-      </v-card-title>
-      <v-divider></v-divider>
-      <v-card-text>
-        <div style="text-align: left; letter-spacing: -0.5px;">
-          본 서비스는 품질 향상과 인사이트 도출을 위해 
-          응답을 수집하여 통계 및 분석에 활용합니다. 
-          <br>위 내용은 해당 목적 외에는 사용되지 않으며, 
-          관련 법령을 준수하여 안전하게 관리됩니다.
-        </div>
-      </v-card-text>
-    </v-card> -->
-
         <v-col
           cols="12"
           no-gutters justify="start" 
-          class="text-subtitle | mb-1 | margin-top-96"
+          class="text-subtitle | mb-4 | margin-top-96"
         >
           당신의 무디멀 유형은
         </v-col>
@@ -103,7 +81,16 @@
         </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center" class="margin-48 | mb-8 | pl-14 | pr-14">
+    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14"> 
+      <v-btn 
+        @click="handleClickRestartBtn"
+        color="#FF794C" rounded="xl" width="100%"
+        class="text-btn"
+      >
+        처음부터 다시하기
+      </v-btn>
+    </v-row>
+    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-3 | mb-8">
       <v-btn 
         @click="handleClickCopyBtn"
         color="#FFFFFF" rounded="xl" width="100%" 
@@ -111,8 +98,9 @@
       >
         <img src="@/assets/logo.svg" alt="Roommate Search" style="height: 26px; width: 64px; margin-right: 4px;">
         알리기
-      </v-btn>  
+      </v-btn> 
     </v-row>
+
     <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
       <v-col cols="auto">
         <v-btn variant="text" density="compact" href="https://github.com/Ebee1205/DungDong?tab=readme-ov-file#-%EC%9E%91%EC%97%85%EA%B8%B0" target="_blank" class="link-label | mr-3">
@@ -127,7 +115,6 @@
     </v-row>
   </BoxContainer>
 
-  <!-- 다이얼로그 -->
   <v-dialog v-model="dialog.dialogActive" width="auto">
     <v-card class="pa-2 | pb-3" rounded="lg">
       <v-card-title class="text-title | pl-4 | pr-4 | pt-4">
@@ -156,7 +143,6 @@
   </v-dialog>
 
 
-  <!-- 스낵바 -->
   <v-snackbar
     v-model="showToast"
     :timeout="3000"
@@ -174,39 +160,32 @@
 <script setup>
 // ----- 선언부 ----- //
 import { onMounted, onUnmounted, onBeforeMount, ref, nextTick} from "vue";
-
 import axios from "axios";
-
 import html2canvas from "html2canvas";
 import Util from "@/common/Util.js"
-
 import BoxContainer from "@/components/BoxContainer.vue";
 import ImageFrame from "@/components/ImageFrame.vue";
 
-const emit = defineEmits(['restart-analyze']);
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+
+const emit = defineEmits(['restart-analyze']);
 const title = '짜잔! 결과 이미지가 나왔어요.'
 const desc = '당신의 SNS 무디멀 유형은?<br>이미지를 저장하고 공유하세요.'
-
 const dialog = ref({
   title: '',
   text: '',
   isActive: false,
   okButton() {}
 });
-
-const loading = ref(true); // 로딩 상태 관리
-const captureRef = ref(null); // 캡처할 컴포넌트의 참조
-const capturedImage = ref(''); // 캡처된 이미지의 URL 저장
-
+const loading = ref(true); 
+const captureRef = ref(null); 
+const capturedImage = ref(''); // 이 변수는 이제 화면 표시에 사용되지 않고, 다운로드용으로만 사용됩니다.
 const toastMessage = ref("");
 const showToast = ref(false); 
-
 const result = ref({
-  Moodimal_image: "",
   Moodimal_type: "",
-  Card_title: "",
-  Card_lore: "",
   Content_title: "",
   Content_lore: ""
 });
@@ -219,34 +198,26 @@ onBeforeMount(() => {
 onMounted(async () => {
   localStorage.setItem('serviceStatus', 'end');
   loadMoodimalData();
-  await nextTick(); // DOM이 렌더링 완료된 후 실행
-  startCaptureProcess();
 });
 
 onUnmounted(() => {
-
 })
 
 // ----- 함수 정의 ----- //
 function loadMoodimalData() {
   const moodimalResult = JSON.parse(localStorage.getItem('moodimalResult'));
-  console.log('get moodimalResult', moodimalResult);
-
-  if (moodimalResult && moodimalResult.result) {
+  console.log('get moodimalResult', moodimalResult.value);
+  if (moodimalResult && moodimalResult.result) { 
     result.value = {
-      Moodimal_image: moodimalResult.Moodimal_image || "",  // 만약 API가 나중에 이미지 추가할 경우 대비
-      Moodimal_type: moodimalResult.moodimal || "",
-      Card_title: moodimalResult.result.Card_title || "",
-      Card_lore: moodimalResult.result.Card_lore || "",
       Content_title: moodimalResult.result.Content_title || "",
       Content_lore: moodimalResult.result.Content_lore || ""
     };
+    console.log('get result', result.value);
   } else {
     console.warn("moodimalResult 데이터가 비어 있습니다.");
   }
 }
 
-// 다시 시작
 function handleClickRestartBtn() {
   openDialog("처음부터 다시하기", "무디멀을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.", () => {
         console.log("emitting restart-analyze event.");
@@ -258,35 +229,50 @@ function handleClickRestartBtn() {
     )
 }
 
-// 이미지 캡처 및 다운로드 //
-// 캡처 프로세스 시작 함수
+function handleClickGoToArchive() {
+  router.push('/archive');
+}
+
+// ----- [수정된 캡처 로직] ----- //
+
 async function startCaptureProcess() {
-  loading.value = true; // 로딩 종료
+  console.log("End.vue: 'image-ready' 이벤트 수신. 캡처를 시작합니다.");
+  loading.value = true; // (참고: 이 loading 프롭은 현재 ImageFrame에서 사용되지 않음)
+
+  // 캡처 전 딜레이
+  await new Promise(resolve => setTimeout(resolve, 50)); 
+
   await captureAndSetImage(); // 캡처 실행
-  loading.value = false; // 로딩 종료
 }
 
 async function captureAndSetImage() {
   if (!captureRef.value) {
-    console.error("캡처할 요소가 존재하지 않습니다.");
+    console.error("캡처할 요소(captureRef)가 존재하지 않습니다.");
     toastMessage.value = "캡처할 요소가 없습니다.";
     showToast.value = true;
+    loading.value = false;
     return;
   }
-
+  
+  // [수정] 캡처할 대상 (항상 DOM에 존재함)
+  const el = captureRef.value;
+  
+  // [수정] 모든 스타일 조작 로직(opacity, zIndex 등) 제거
+  
   try {
-    const canvas = await html2canvas(captureRef.value, {
-      allowTaint: true,
-      useCORS: true, 
-      scale: window.devicePixelRatio || 2, // 고해상도 지원
+    const canvas = await html2canvas(el, {
+      useCORS: true,
+      scale: window.devicePixelRatio || 2, 
       logging: true,  
-      width: captureRef.value.offsetWidth,  
-      height: captureRef.value.offsetHeight,
+      width: el.offsetWidth,  
+      height: el.offsetHeight,
       backgroundColor: null
     });
 
     const dataUrl = canvas.toDataURL("image/png");
-    capturedImage.value = dataUrl; // Vue 상태 업데이트
+    
+    // [수정] capturedImage 값을 설정. (UI 변경 없음)
+    capturedImage.value = dataUrl; 
 
     console.log("캡처 완료 및 Base64 URL 생성");
 
@@ -294,13 +280,18 @@ async function captureAndSetImage() {
     console.error("캡처 중 오류 발생:", error.message);
     toastMessage.value = "캡처 중 오류가 발생했습니다.";
     showToast.value = true;
+  } finally {
+    // [수정] 스타일 복원 로직 제거
+    loading.value = false;
   }
 }
+// ----- [캡처 로직 수정 끝] ----- //
+
 
 async function downloadImage(dataUrl) {
-  if (!dataUrl) {
-    console.error("이미지 데이터가 없습니다.");
-    toastMessage.value = "다운로드할 이미지가 없습니다.";
+  if (!dataUrl || dataUrl === 'data:,') { 
+    console.error("이미지 데이터가 없습니다. (캡처 실패)");
+    toastMessage.value = "다운로드할 이미지가 없습니다. (캡처 실패)";
     showToast.value = true;
     return;
   }
@@ -359,6 +350,11 @@ function handleSnackbarClose(value) {
 </script>
 
 <style scoped>
+/* [수정] .hidden-capture-area 스타일 제거 (더 이상 필요 없음) */
+/*
+.hidden-capture-area { ... }
+*/
+
 .text-btn {
   color: #FFF;
   text-align: center;
@@ -375,14 +371,6 @@ function handleSnackbarClose(value) {
   font-style: normal;
   font-weight: 400;
   letter-spacing: -0.5px;
-}
-
-.hidden-capture-area {
-  position: absolute;
-  top: -99999px;
-  left: -99999px;
-  opacity: 1;
-  pointer-events: none;
 }
 
 .text-title {
