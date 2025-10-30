@@ -9,12 +9,12 @@
           <!-- 이미지 스캔 애니메이션 -->
           <div class="image-scan-container">
             <img 
-              src="https://placehold.co/600x400" 
-              alt="Sample Image"
+              :src="imageSrc" 
+              alt="Uploaded preview"
               class="scan-image"
             />
-            <div class="scan-line"></div>
-            <div class="scan-overlay"></div>
+            <div class="scan-line" :style="{ '--scan-height': imageHeight + 'px' }"></div>
+            <div class="scan-overlay" :style="{ '--scan-height': imageHeight + 'px' }"></div>
           </div>
       </v-col>
     </v-row>
@@ -112,12 +112,31 @@ const dialog = ref({
   okButton() {},
 });
 
+const imageSrc = ref('https://placehold.co/600x400');
+const imageHeight = ref(400); // 이미지 높이 저장
+
 const loading = ref(true);
 const toastMessage = ref("");
 const showToast = ref(false); 
 
 // ----- 라이프 사이클 ----- //
 onMounted(async () => {
+
+  const saved = sessionStorage.getItem('uploadImg');
+  if (saved) {
+    imageSrc.value = saved;
+    // 이미지 로드 후 높이 계산
+    await nextTick();
+    const img = new Image();
+    img.onload = () => {
+      const imgElement = document.querySelector('.scan-image');
+      if (imgElement) {
+        imageHeight.value = imgElement.offsetHeight;
+      }
+    };
+    img.src = saved;
+  }
+
   // 텍스트 전환 시작 (2초마다)
   textInterval = setInterval(() => {
     currentTextIndex.value = (currentTextIndex.value + 1) % infoTexts.value.length;
@@ -336,7 +355,7 @@ function handleSnackbarClose(value) {
     transform: translateY(0);
   }
   100% {
-    transform: translateY(400px);
+    transform: translateY(var(--scan-height, 400px));
   }
 }
 </style>

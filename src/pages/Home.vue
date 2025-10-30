@@ -124,6 +124,15 @@ function setServiceStatus(status) {
   }
 }
 
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 async function handleClickStartBtn() {
   const file = Array.isArray(uploadedFile.value)
     ? uploadedFile.value?.[0]
@@ -143,6 +152,9 @@ async function handleClickStartBtn() {
   uploading.value = true;
 
   try {
+    const dataUrl = await fileToDataURL(file);
+    sessionStorage.setItem('uploadImg', dataUrl);
+
     // 상태를 'ocr'로 (업로드 → OCR 단계)
     setServiceStatus('ocr');
 
