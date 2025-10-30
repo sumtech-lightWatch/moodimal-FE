@@ -116,7 +116,6 @@ const toastMessage = ref("");
 const showToast = ref(false); 
 
 const ocrResult = ref("");
-const parsedSurvey = ref(null)
 
 // ----- 라이프 사이클 ----- //
 onBeforeMount(() => {
@@ -129,15 +128,10 @@ onMounted(async () => {
   }, 2000);
 
   getOcrResultData();
-  // loadUploadedImage(); // 3. 정의되지 않은 함수 호출 제거 (또는 주석 처리)
+  generateLLMAnalyze();
+
   await nextTick();
   
-
-  
-  // API 응답 상태 체크 시작 (1초마다)
-  statusCheckInterval = setInterval(() => {
-    // checkUploadStatus(); // 이 함수도 정의되지 않았다면 주석 처리 필요
-  }, 1000);
 });
 
 onUnmounted(() => {
@@ -161,6 +155,28 @@ function getOcrResultData() {
   } catch (e) {
     console.error('fail get ocrResult error:', e);
   }
+}
+
+// generate/llm/analyze
+async function generateLLMAnalyze(text) {
+  const tid = Date.now();
+
+  const url = '/api/v1/generate/llm/analyze';
+  const payload = { tid, text: String(text || '') };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const result = await res.json();
+
+  const data = result?.data ?? result;
+  const value = typeof data === 'string' ? data : JSON.stringify(data);
+  localStorage.setItem('moodimalResult', value);
+
+  return data; 
 }
 
 
