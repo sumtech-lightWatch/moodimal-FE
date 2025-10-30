@@ -124,7 +124,7 @@ onMounted(async () => {
 
   // (2) 이미지 미리보기 세팅
   imageSrc.value = saved;
-  await nextTick();
+  await nextTick(); // DOM 업데이트를 기다려야 하므로 이 부분의 await는 유지합니다.
   const img = new Image();
   img.onload = () => {
     const imgElement = document.querySelector('.scan-image');
@@ -140,36 +140,63 @@ onMounted(async () => {
   // (4) OCR 결과 텍스트 불러오기
   const text = getOcrTextFromLocalStorage();
 
-  try {
-    // (5) LLM 분석 호출
-    await generateLLMAnalyze(text);
-
-    // (6) moodimalResult에서 moodimal 추출
-    const moodimalRaw = localStorage.getItem('moodimalResult');
-    let moodimalName = '';
-    try {
-      const parsed = JSON.parse(moodimalRaw);
-      moodimalName = parsed?.moodimal || parsed?.data?.moodimal || '';
-    } catch {
-      moodimalName = '';
-    }
-
-    // (7) moodimal 값이 있으면 이미지 생성 호출
-    if (moodimalName) {
-      await generateMoodimalImage(moodimalName);
-    }
-
-    // (8) 완료 시 end 페이지로 이동
-    router.push('/end'); 
-  } catch (err) {
-    console.error('[Load] LLM 분석 실패:', err);
-    openDialog('오류', '결과를 불러오는 중 오류가 발생했습니다.', () => {
+  // OCR 텍스트가 비어있는지 확인
+  if (!text) {
+    console.error('[Load] OCR 텍스트가 비어있습니다.');
+    openDialog('오류', '이미지에서 텍스트를 추출하지 못했습니다. 다른 이미지로 시도해주세요.', () => {
       dialog.value.dialogActive = false;
       router.push('/');
     });
+    return; // onMounted 중단
   }
 
-  await nextTick();
+  // [수정됨] (5) LLM 분석 호출 -> .then() 체이닝 시작
+  generateLLMAnalyze(text)
+    .then(() => {
+      // (6) LLM 분석 성공 후 실행
+      const moodimalRaw = localStorage.getItem('moodimalResult');
+      let moodimalName = '';
+      try {
+        const parsed = JSON.parse(moodimalRaw);
+        moodimalName = parsed?.moodimal || parsed?.data?.moodimal || '';
+      } catch {
+        moodimalName = '';
+      }
+
+      // (7) moodimal 값이 있는지 확인
+      if (!moodimalName) {
+        // moodimalName이 없으면 에러를 발생시켜 catch 블록으로 보냄
+        console.error('[Load] LLM 분석 결과에서 moodimal 이름을 찾을 수 없습니다.');
+        throw new Error('분석 결과에서 무디멀 유형을 찾지 못했습니다.');
+      }
+
+      // (8) moodimal 값이 있으면 이미지 생성 호출
+      // Promise를 반환해야 다음 .then()이 이 작업이 끝나길 기다립니다.
+      return generateMoodimalImage(moodimalName); 
+    })
+    .then(() => {
+      // (9) 이미지 생성 성공 후 실행
+      // (generateMoodimalImage가 성공적으로 완료된 시점)
+      const generatedImage = localStorage.getItem('moodimalImage');
+      if (!generatedImage) {
+        // 이미지가 스토리지에 없는 경우 (이론상 generateMoodimalImage에서 throw됨)
+        throw new Error('이미지 생성에 성공했으나, 저장된 이미지가 없습니다.');
+      }
+
+      // (10) 모든 작업 완료 시 end 페이지로 이동
+      console.log('[Load] 모든 분석 및 생성 완료. /end 페이지로 이동');
+      router.push('/end');
+    })
+    .catch(err => {
+      // [수정됨] (5) 또는 (8) 단계에서 발생한 모든 오류를 여기서 일괄 처리
+      console.error('[Load] 분석 프로세스 실패:', err);
+      openDialog('오류', `결과를 불러오는 중 오류가 발생했습니다.<br>(${err.message || '다시 시도해주세요.'})`, () => {
+        dialog.value.dialogActive = false;
+        router.push('/');
+      });
+    });
+
+  // onMounted의 나머지 부분은 비동기 체인과 관계없이 즉시 완료됩니다.
 });
 
 onUnmounted(() => {

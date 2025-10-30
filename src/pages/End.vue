@@ -46,7 +46,7 @@
       </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14">
+    <v-row no-gutters justify="center" class="pl-14 | pr-14">
       <v-btn 
         @click="handleClickGoToArchive"
         color="#FFFFFF" rounded="xl" width="100%"
@@ -61,9 +61,12 @@
         <v-col
           cols="12"
           no-gutters justify="start" 
-          class="text-subtitle | mb-4 | margin-top-96"
+          class="text-subtitle | margin-top-96"
         >
           당신의 무디멀 유형은
+        </v-col>
+        <v-col cols="12" class="card-title | mb-4">
+          {{ result.Card_title }}
         </v-col>
         <v-col
           cols="12"
@@ -90,7 +93,7 @@
         처음부터 다시하기
       </v-btn>
     </v-row>
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14 | pt-3 | mb-8">
+    <v-row no-gutters justify="center" class="pl-14 | pr-14 | pt-3 | mb-8">
       <v-btn 
         @click="handleClickCopyBtn"
         color="#FFFFFF" rounded="xl" width="100%" 
@@ -186,6 +189,7 @@ const toastMessage = ref("");
 const showToast = ref(false); 
 const result = ref({
   Moodimal_type: "",
+  Card_title: "",
   Content_title: "",
   Content_lore: ""
 });
@@ -209,6 +213,7 @@ function loadMoodimalData() {
   console.log('get moodimalResult', moodimalResult.value);
   if (moodimalResult && moodimalResult.result) { 
     result.value = {
+      Card_title: moodimalResult.result.Card_title || "",
       Content_title: moodimalResult.result.Content_title || "",
       Content_lore: moodimalResult.result.Content_lore || ""
     };
@@ -374,10 +379,10 @@ function handleSnackbarClose(value) {
 }
 
 .text-title {
-  font-size: 19.5px;
+  font-size: 18px;
   font-style: normal;
   font-weight: 700;
-  line-height: normal;
+  line-height: 24px;
   letter-spacing: -0.5px;
 }
 
@@ -390,8 +395,12 @@ function handleSnackbarClose(value) {
   color: #404040;
 }
 
+.margin-48 {
+  margin-top: 48px;
+}
+
 .margin-top-96 {
-  margin-top: 56px;
+  margin-top: 96px;
 }
 
 .text-label-container {
@@ -427,4 +436,12 @@ function handleSnackbarClose(value) {
   font-weight: 600;
   line-height: normal;
 }
+
+.card-title {
+    font-family: "Bagel Fat One", system-ui;
+    font-size: 24px;
+    font-weight: 400;
+    font-style: normal;
+}
+
 </style>
