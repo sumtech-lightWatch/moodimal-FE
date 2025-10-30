@@ -10,7 +10,7 @@
     <v-row no-gutters justify="center" class="mb-4 px-4">
       <v-text-field
         v-model="searchQuery"
-        placeholder='ex. "거북이" 또는 날짜 입력'
+        placeholder='태그를 검색해보세요'
         variant="outlined" rounded="pill" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C" 
         density="comfortable"
         hide-details
@@ -22,19 +22,19 @@
       </v-text-field>
     </v-row>
 
-    <v-row no-gutters class="px-4 mb-6">
+    <v-row no-gutters class="px-4">
       <v-col 
         v-for="(card, id) in filteredCards" 
         :key="id" 
         cols="6" 
-        class="pa-2"
+        class="pa-2 | d-flex | flex-column | align-center"
       >
         <v-btn
           @click="filterByTag(card.title)"
           color="#FF794C"
           rounded="pill"
           height="24"
-          class="date-btn"
+          class="date-btn | mb-1"
           elevation="0"
           :text="card.title"
         />
@@ -53,8 +53,8 @@
             class="card-image"
           ></v-img>
         </v-card>
-        <div class="link-label | mr-3">
-          {{ card.date }} 생성됨
+        <div class="link-label | mb-4">
+          {{ card.date }}
         </div>
       </v-col>
     </v-row>
@@ -102,7 +102,6 @@
 </template>
 
 <script setup>
-// [수정] computed import 추가
 import { ref, computed } from 'vue';
 import BoxContainer from '@/components/BoxContainer.vue';
 
@@ -132,7 +131,7 @@ const dialog = ref({
   okButton: null
 });
 
-// [수정] 카드 데이터에 'image' 속성 추가
+// 카드 데이터
 const cardData = {
   1: {
     title: '#예술가형',
@@ -190,37 +189,36 @@ const cardData = {
     date: '2025.10.21',
     image: card8
   },
-  9: { // 1번 데이터 재사용
+  9: { 
     title: '#예술가형',
-    name: '우울한 고양이',
-    description: '창밖을 바라보며 생각에 잠긴, 감수성 풍부한 고양이입니다.',
+    name: '괴짜 거북이',
+    description: '등껍질 위에 낙서를 잔뜩 해놓고 다니는 예술가 기질의 거북이입니다.',
     date: '2025.10.20',
     image: card9
   },
-  10: { // 2번 데이터 재사용
+  10: { 
     title: '#활력형',
-    name: '활기찬 펭귄',
-    description: '넘치는 에너지로 뒤뚱뒤뚱, 어디든 신나게 달려가는 펭귄입니다.',
+    name: '힙한 하마',
+    description: '헤드폰을 끼고 로파이 음악을 들으며 쿨함을 시전하는 감성적 하마입니다.',
     date: '2025.10.19',
     image: card10
   },
-  11: { // 3번 데이터 재사용
+  11: { 
     title: '#차분형',
-    name: '고독한 늑대',
-    description: '무리에서 벗어나 홀로 달을 보며 사색을 즐기는 늑대입니다.',
+    name: '침착한 침팬지',
+    description: '어지러운 세상 속에서도 늘 한 걸음 뒤에서 상황을 지켜보는 침팬지입니다.',
     date: '2025.10.18',
     image: card11
   }
 };
 
-// [수정] 필터링된 카드 목록을 반환하는 computed 속성
+// 필터링된 카드 목록
 const filteredCards = computed(() => {
   const query = searchQuery.value.toLowerCase().trim();
   if (!query) {
-    return cardData; // 검색어가 없으면 전체 목록 반환
+    return cardData; 
   }
 
-  // cardData 객체를 순회하며 필터링
   return Object.fromEntries(
     Object.entries(cardData).filter(([id, card]) => {
       const titleMatch = card.title.toLowerCase().includes(query);
@@ -231,14 +229,13 @@ const filteredCards = computed(() => {
   );
 });
 
-// [수정] 태그 클릭 시 검색창 텍스트를 설정하는 함수
+// 태그 클릭
 function filterByTag(tagTitle) {
   searchQuery.value = tagTitle;
 }
 
-// 카드 클릭 시 팝업 (변경 없음)
+// 카드 클릭
 function handleCardClick(cardId) {
-  // cardId가 데이터 객체에 있는지 확인
   if (cardData[cardId]) {
     const card = cardData[cardId];
     openDialog(
@@ -246,14 +243,11 @@ function handleCardClick(cardId) {
       `[${card.name}]<br>${card.description}`
     );
   } else {
-    // 필터링된 목록에는 cardId가 없을 수 있으므로, 원본 데이터에서 다시 찾습니다.
-    // (filteredCards를 사용하면 id가 1, 3, 5만 있을 수 있음)
-    // 이 로직은 현재 id를 cardData의 key로 사용하므로 안전합니다.
     console.warn(`cardData에 ID '${cardId}'가 없습니다.`);
   }
 }
 
-// 다시 시작 (변경 없음)
+// 다시 시작
 function handleClickRestartBtn() {
   console.log("emitting restart-analyze event.");
   localStorage.setItem('serviceStatus', 'restart');
@@ -262,7 +256,7 @@ function handleClickRestartBtn() {
   emit('restart-analyze'); 
 }
 
-// 다이얼로그 유틸 (변경 없음)
+// 다이얼로그
 function openDialog(title, text, onConfirm = null) {
   dialog.value.title = title;
   dialog.value.text = text;
@@ -288,7 +282,7 @@ function openDialog(title, text, onConfirm = null) {
   letter-spacing: -0.3px;
 }
 
-/* 검색창 - placeholder 진하게 */
+/* 검색창 */
 .search-input {
   font-size: 14px;
   letter-spacing: -0.3px;
@@ -301,13 +295,14 @@ function openDialog(title, text, onConfirm = null) {
   margin-top: 4px; 
   margin-bottom: 4px; 
   cursor: pointer;
+  width: 100%; /* [수정] 정렬을 위해 너비 100% 설정 */
 }
 
 .card-image {
   border-radius: 18px;
 }
 
-/* 날짜 버튼 (카드 외부) */
+/* 태그 버튼 (카드 상단) */
 .date-btn {
   color: #FFFFFF;
   font-size: 13px;
@@ -315,14 +310,11 @@ function openDialog(title, text, onConfirm = null) {
   letter-spacing: -0.3px;
   text-transform: none;
   box-shadow: none !important;
-  display: block;
-  margin-left: 0;
-  margin-right: auto;
-  /* [수정] 태그 클릭 시 포인터 커서 추가 */
   cursor: pointer; 
+  /* [수정] display: block 및 margin 제거 */
 }
 
-/* 다시 시작하기 버튼 - End.vue와 동일 */
+/* 다시 시작하기 버튼 */
 .text-btn {
   color: #FFF;
   text-align: center;
@@ -332,7 +324,7 @@ function openDialog(title, text, onConfirm = null) {
   letter-spacing: -0.5px;
 }
 
-/* margin-32 클래스 - 버튼 위로 올림 */
+/* margin-32 클래스 */
 .margin-32 {
   margin-top: 32px;
 }
@@ -355,6 +347,7 @@ function openDialog(title, text, onConfirm = null) {
   color: #404040;
 }
 
+/* 날짜 텍스트 (카드 하단) */
 .link-label {
   text-decoration: none;
   font-size: 12px;
@@ -365,8 +358,9 @@ function openDialog(title, text, onConfirm = null) {
   color: #888888;
   margin-top: 8px; 
   display: block;
-  text-align: left;
-  padding-left: 4px;
+  /* [수정] text-align: center, padding-left: 0 */
+  text-align: center;
+  padding-left: 0;
   text-transform: none;
 }
 </style>
