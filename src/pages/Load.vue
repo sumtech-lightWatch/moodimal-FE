@@ -80,7 +80,6 @@
 import { onMounted, onUnmounted, onBeforeMount, ref, nextTick} from "vue";
 
 import axios from "axios";
-
 import Util from "@/common/Util.js"
 
 import BoxContainer from "@/components/BoxContainer.vue";
@@ -116,20 +115,16 @@ const loading = ref(true); // 로딩 상태 관리
 const toastMessage = ref("");
 const showToast = ref(false); 
 
-const result = ref({
-  title:  null,
-  img: "",
-});
-
+const ocrResult = ref("");
 const parsedSurvey = ref(null)
 
 // ----- 라이프 사이클 ----- //
 onBeforeMount(() => {
 });
 
-
 onMounted(async () => {
-  loadSurveyData();
+  getOcrResultData();
+  loadUploadedImage();
   await nextTick();
   
   // 텍스트 전환 시작 (2초마다)
@@ -137,36 +132,35 @@ onMounted(async () => {
     currentTextIndex.value = (currentTextIndex.value + 1) % infoTexts.value.length;
   }, 2000);
   
-  // 로딩 종료 시간 설정 (필요시 조정)
-  setTimeout(() => {
-    loading.value = false;
-    if (textInterval) {
-      clearInterval(textInterval);
-    }
-  }, 16000); // 텍스트 8개 * 2초
+  // API 응답 상태 체크 시작 (1초마다)
+  statusCheckInterval = setInterval(() => {
+    checkUploadStatus();
+  }, 1000);
 });
 
 onUnmounted(() => {
-  // 인터벌 정리
   if (textInterval) {
     clearInterval(textInterval);
+  }
+  if (statusCheckInterval) {
+    clearInterval(statusCheckInterval);
   }
 })
 
 // ----- 함수 정의 ----- //
-function loadSurveyData() {
-  const existingSurvey = localStorage.getItem('userSurvey');
-  console.log('get existingSurvey', existingSurvey);
 
-  if (existingSurvey) {
-    parsedSurvey.value = JSON.parse(existingSurvey);
-  
-    const titleInfo = "";
-    result.value.title = titleInfo.title;
+function getOcrResultData() {
+  try {
+    ocrResult.value = localStorage.getItem('ocrResult');
+    if (!ocrResult.value) return;
 
-    console.log('set and parse result object', result.value);
+    console.log('get ocrResult', ocrResult.value);
+
+  } catch (e) {
+    console.error('fail get ocrResult error:', e);
   }
 }
+
 
 // 다이얼로그 유틸
 function openDialog(title, text, onConfirm) {

@@ -77,9 +77,8 @@ import { onMounted, onUnmounted, ref, computed, watch} from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+const emit = defineEmits(['hide-appbar', 'loading-result', 'restart-survey']);
 
-// 'start-loading' 이벤트를 쓰지 않는 방식(라우터로 이동)으로 정리
-const emit = defineEmits(['hide-appbar', 'start-survey', 'restart-survey']);
 
 
 const dialog = ref({
@@ -94,32 +93,26 @@ const uploading = ref(false);
 
 onMounted(() => {
   emit('hide-appbar');
-  setCurrentSurvey();
+
 });
 
 // ----- 함수 정의 ----- //
 
-function setCurrentSurvey() {
-  const existing = localStorage.getItem('userSurvey');
-  if (existing) {
-    const survey = JSON.parse(existing);
-    // 필요 시 사용
+const VALID_STATUS = ['home', 'ocr', 'analyze', 'result'];
+function setServiceStatus(status) {
+  if (VALID_STATUS.includes(status)) {
+    localStorage.setItem('serviceStatus', status);
+  } else {
+    console.warn(`[serviceStatus] invalid value: ${status}`);
   }
 }
-
-function updateLocalStorage(field, value) {
-  const existing = JSON.parse(localStorage.getItem("userSurvey")) || {};
-  existing[field] = value;
-  localStorage.setItem("userSurvey", JSON.stringify(existing));
-  console.log(`Updated localStorage userSurvey: ${field} = ${value}`);
-}
-
 
 async function handleClickStartBtn() {
   const file = Array.isArray(uploadedFile.value)
     ? uploadedFile.value?.[0]
     : uploadedFile.value;
 
+  // 파일이 없을 때 안내
   if (!file) {
     openDialog(
       '이미지를 업로드해 주세요',
@@ -133,48 +126,40 @@ async function handleClickStartBtn() {
   uploading.value = true;
 
   try {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      updateLocalStorage('uploadedImage', e.target.result);
-    };
-    reader.readAsDataURL(file);
+    // 상태를 'ocr'로 (업로드 → OCR 단계)
+    setServiceStatus('ocr');
 
-    updateLocalStorage('serviceStatus', 'uploading');
-    localStorage.setItem('appInitialized', 'false');
+    // 로딩 화면으로 이동
     router.push({ name: 'Load' });
 
+    // OCR 요청
     const tid = Date.now();
     await generateOcrText(file, tid);
 
+    // OCR 완료 후엔 분석 단계로 진입할 수 있도록 상태를 'analyze'로
+    setServiceStatus('analyze');
+
   } catch (error) {
     console.error('파일 처리 실패:', error);
-    updateLocalStorage('serviceStatus', 'failed');
-    updateLocalStorage('apiError', error?.message ?? String(error));
+
   } finally {
     uploading.value = false;
   }
 }
 
 async function generateOcrText(file, tid) {
-  try {
-    const formData = new FormData();
-    formData.append('tid', String(tid));
-    formData.append('file', file);
+  const formData = new FormData();
+  formData.append('tid', String(tid));
+  formData.append('file', file);
 
-    const url = '/api/v1/generate/ocr/text';
+  const url = '/api/v1/generate/ocr/text'; // Vite proxy 사용 시
+  const res = await fetch(url, { method: 'POST', body: formData });
+  const result = await res.json();
 
-    const res = await fetch(url, { method: 'POST', body: formData });
-    const result = await res.json();
-
-    updateLocalStorage('ocrResult', JSON.stringify(result));
-    updateLocalStorage('serviceStatus', 'completed');
-  } catch (error) {
-    console.error('API 호출 실패:', error);
-    updateLocalStorage('serviceStatus', 'failed');
-    updateLocalStorage('apiError', error?.message ?? String(error));
-  }
+  // - result가 문자열이면 그대로, 객체면 JSON 문자열로 저장
+  const value = typeof result === 'string' ? result : JSON.stringify(result);
+  localStorage.setItem('ocrResult', value);
 }
-
 
 // 다이얼로그 유틸
 function openDialog(title, text, onConfirm) {
