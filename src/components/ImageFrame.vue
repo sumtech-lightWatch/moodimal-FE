@@ -6,7 +6,6 @@
             no-gutters
             class="img-container | elevation-1"
         >
-            
         </v-row>
 
         <v-row
@@ -47,8 +46,6 @@ const props = defineProps({
 });
 
 const result = ref(null)
-
-const getColor = ref('#FF794C'); 
 
 // ----- 라이프 사이클 ----- //
 onMounted(() => {
