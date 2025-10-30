@@ -21,10 +21,10 @@
       <v-file-input
         variant="outlined" rounded="lg" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C"
         label="SNS 캡처 화면을 업로드 해주세요"
-        :items="collegeItem"
-        v-model="college"
+        v-model="uploadedFile"
         prepend-icon=""
         append-inner-icon="mdi-camera"
+        accept="image/*"
       ></v-file-input>
     </v-row>
     
@@ -40,62 +40,153 @@
       </v-btn>
     </v-row>
   </v-container>
+
+  <!-- 다이얼로그 -->
+  <v-dialog v-model="dialog.dialogActive" width="auto">
+    <v-card class="pa-2 | pb-3" rounded="lg">
+      <v-card-title class="text-title | pl-4 | pr-4 | pt-4">
+        <v-row style="justify-content: start; align-items: center;">
+          <v-col class="pt-0 | pb-0 | pl-4 | pr-1" cols="auto">
+            <v-img
+              src="@/assets/logo.png"
+              height="24"
+              width="24"
+              class=""
+            ></v-img>
+          </v-col>
+          <v-col class="pl-1" cols="auto">
+            {{ dialog.title }}
+          </v-col>
+        </v-row>
+      </v-card-title>
+      <v-card-text class="text-subtitle | pl-4 | pr-4 | pt-2 | pb-3" v-html="dialog.text"></v-card-text>
+      <template v-slot:actions>
+          <v-row no-gutters justify="end">
+              <!-- <v-btn color="#FF5858" width="25%" rounded="xl" variant="outlined" @click="dialog.dialogActive = false">취소</v-btn> -->
+              <v-btn color="#FF5858" width="25%" rounded="xl" variant="flat" class="ml-2" @click="dialog.okButton">확인</v-btn>
+          </v-row>
+      </template>
+    </v-card>
+  </v-dialog>
 </template>
+
 
 <script setup>
 // ----- 선언부 ----- //
 import { onMounted, onUnmounted, ref, computed, watch} from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { routes } from "@/router"
-import { el } from "vuetify/locale";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
+
+// 'start-loading' 이벤트를 쓰지 않는 방식(라우터로 이동)으로 정리
 const emit = defineEmits(['hide-appbar', 'start-survey', 'restart-survey']);
 
 
-// ----- 라이프 사이클 ----- //
-onMounted(() => {
-  emit('hide-appbar'); 
-
-  setCurrentSurvey();
-
+const dialog = ref({
+  title: '',
+  text: '',
+  isActive: false,
+  okButton() {}
 });
 
-onUnmounted(() => {
+const uploadedFile = ref(null);   
+const uploading = ref(false);     
 
-})
-
-
+onMounted(() => {
+  emit('hide-appbar');
+  setCurrentSurvey();
+});
 
 // ----- 함수 정의 ----- //
 
-// 최초 로딩
 function setCurrentSurvey() {
-  // 저장된 값이 있다면 가져오기
-  const existingSurvey = localStorage.getItem('userSurvey');
-  
-  if (existingSurvey) {
-    const survey = JSON.parse(existingSurvey);
+  const existing = localStorage.getItem('userSurvey');
+  if (existing) {
+    const survey = JSON.parse(existing);
+    // 필요 시 사용
   }
 }
 
-// 변경값 로컬스토리지에 저장
 function updateLocalStorage(field, value) {
-  const existingSurvey = JSON.parse(localStorage.getItem("userSurvey")) || {};
-  existingSurvey[field] = value;
-  localStorage.setItem("userSurvey", JSON.stringify(existingSurvey));
+  const existing = JSON.parse(localStorage.getItem("userSurvey")) || {};
+  existing[field] = value;
+  localStorage.setItem("userSurvey", JSON.stringify(existing));
   console.log(`Updated localStorage userSurvey: ${field} = ${value}`);
 }
 
-// 설문 시작
-function handleClickStartBtn() {
-  localStorage.setItem('appInitialized', 'false');
-  localStorage.setItem('surveyId', null);
-  console.log("emitting start-survey event.");
-  emit('start-survey');
+
+async function handleClickStartBtn() {
+  const file = Array.isArray(uploadedFile.value)
+    ? uploadedFile.value?.[0]
+    : uploadedFile.value;
+
+  if (!file) {
+    openDialog(
+      '이미지를 업로드해 주세요',
+      'SNS 캡처 이미지를 선택한 뒤 <b>결과확인하기</b>를 눌러주세요.',
+      () => { dialog.value.dialogActive = false; }
+    );
+    return;
+  }
+
+  if (uploading.value) return;
+  uploading.value = true;
+
+  try {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      updateLocalStorage('uploadedImage', e.target.result);
+    };
+    reader.readAsDataURL(file);
+
+    updateLocalStorage('serviceStatus', 'uploading');
+    localStorage.setItem('appInitialized', 'false');
+    router.push({ name: 'Load' });
+
+    const tid = Date.now();
+    await generateOcrText(file, tid);
+
+  } catch (error) {
+    console.error('파일 처리 실패:', error);
+    updateLocalStorage('serviceStatus', 'failed');
+    updateLocalStorage('apiError', error?.message ?? String(error));
+  } finally {
+    uploading.value = false;
+  }
+}
+
+async function generateOcrText(file, tid) {
+  try {
+    const formData = new FormData();
+    formData.append('tid', String(tid));
+    formData.append('file', file);
+
+    const url = '/api/v1/generate/ocr/text';
+
+    const res = await fetch(url, { method: 'POST', body: formData });
+    const result = await res.json();
+
+    updateLocalStorage('ocrResult', JSON.stringify(result));
+    updateLocalStorage('serviceStatus', 'completed');
+  } catch (error) {
+    console.error('API 호출 실패:', error);
+    updateLocalStorage('serviceStatus', 'failed');
+    updateLocalStorage('apiError', error?.message ?? String(error));
+  }
+}
+
+
+// 다이얼로그 유틸
+function openDialog(title, text, onConfirm) {
+  dialog.value.title = title;
+  dialog.value.text = text;
+  dialog.value.okButton = onConfirm;
+  dialog.value.dialogActive = true;
 }
 
 
 </script>
+
 
 <style scoped>
 
@@ -176,6 +267,23 @@ function handleClickStartBtn() {
   font-style: normal;
   font-weight: 700;
   line-height: normal;
+}
+
+.text-title {
+    font-size: 19.5px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    letter-spacing: -0.5px;
+}
+
+.text-subtitle {
+    font-size: 15x;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.4px;
+    color: #404040;
 }
 
 </style>

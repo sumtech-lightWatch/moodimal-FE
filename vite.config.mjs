@@ -58,7 +58,7 @@ export default defineConfig({
     ],
   },
   server: {
-    port: 3001,
+    port: 3000,
     host: true, // 로컬 네트워크에서 접근 가능하도록 설정
     proxy: {
       '/api': {
