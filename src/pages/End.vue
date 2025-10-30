@@ -246,10 +246,7 @@ function loadSurveyData() {
 
 // 다시 시작
 function handleClickRestartBtn() {
-  openDialog(
-    '설문 다시하기',
-    '설문을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.', 
-    () => {
+  openDialog("처음부터 다시하기", "무디멀을 다시 시작합니다.<br>처음으로 가면 되돌릴 수 없어요.", () => {
         console.log("emitting restart-analyze event.");
         localStorage.setItem('surveyId', null);
         localStorage.setItem('appInitialized', 'false');
