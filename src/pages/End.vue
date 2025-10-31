@@ -45,15 +45,15 @@
         </v-btn>
       </v-col>
     </v-row>
-
     <v-row no-gutters justify="center" class="pl-14 | pr-14">
       <v-btn 
         @click="handleClickGoToArchive"
-        color="#FFFFFF" rounded="xl" width="100%"
+        color="#FFFFFF" rounded="xl" width="100%" 
         class="w-text-btn"
       >
-        나의 무디멀 모아보기
-      </v-btn>
+        <img src="@/assets/logo.svg" alt="Roommate Search" style="height: 26px; width: 64px; margin-right: 4px;">
+        모아보기
+      </v-btn> 
     </v-row>
 
 
@@ -84,7 +84,7 @@
         </v-col>
     </v-row>
 
-    <v-row no-gutters justify="center" class="margin-48 | pl-14 | pr-14"> 
+    <v-row no-gutters justify="center" class="margin-48 | mb-12 | pl-14 | pr-14"> 
       <v-btn 
         @click="handleClickRestartBtn"
         color="#FF794C" rounded="xl" width="100%"
@@ -92,16 +92,6 @@
       >
         처음부터 다시하기
       </v-btn>
-    </v-row>
-    <v-row no-gutters justify="center" class="pl-14 | pr-14 | pt-3 | mb-12">
-      <v-btn 
-        @click="handleClickCopyBtn"
-        color="#FFFFFF" rounded="xl" width="100%" 
-        class="w-text-btn"
-      >
-        <img src="@/assets/logo.svg" alt="Roommate Search" style="height: 26px; width: 64px; margin-right: 4px;">
-        알리기
-      </v-btn> 
     </v-row>
 
     <!-- <v-row no-gutters justify="center" class="mb-12 | pl-5 | pr-5">
