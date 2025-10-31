@@ -9,7 +9,7 @@
     </v-row>
     <v-row no-gutters justify="center" class="margin-88px | mt-2">
       <v-col class="title-text-sub">
-        한 장의 이미지로 룸메이트 구하기!
+        자기인식형 감정케어 서비스
       </v-col>
     </v-row>
 
