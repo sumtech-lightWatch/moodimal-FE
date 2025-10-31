@@ -4,9 +4,9 @@
       :title="title" :desc="desc"
     ></SubTitle>
 
-    <v-row no-gutters class="justify-center | mt-9">
-      <v-col no-gutters>
-        <!-- 이미지 스캔 애니메이션 -->
+    <v-row no-gutters class="justify-center | mt-5">
+      
+      <v-col no-gutters cols="8">
         <div class="image-scan-container">
           <img 
             :src="imageSrc" 
@@ -19,7 +19,7 @@
       </v-col>
     </v-row>
     
-    <v-row no-gutters class="justify-center | mt-6">
+    <v-row no-gutters class="justify-center | mt-4">
       <v-col class="info-text-container">
         <transition name="slide-fade" mode="out-in">
           <div :key="currentTextIndex" class="info-text">
@@ -31,7 +31,6 @@
 
   </BoxContainer>
 
-  <!-- 다이얼로그 -->
   <v-dialog v-model="dialog.dialogActive" width="auto">
     <v-card class="pa-2 | pb-3" rounded="lg">
       <v-card-title class="text-title | pl-4 | pr-4 | pt-4">
@@ -58,7 +57,6 @@
     </v-card>
   </v-dialog>
 
-  <!-- 스낵바 -->
   <v-snackbar
     v-model="showToast"
     :timeout="3000"
