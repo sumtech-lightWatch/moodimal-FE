@@ -1,0 +1,1 @@
+import{a8 as a,a9 as e,at as n,ad as t,aa as s,b9 as r}from"./index-DI2aBRzA.js";const c={class:"container-box | pt-4"},_={__name:"BoxContainer",setup(d){return e(()=>{}),n(()=>{}),(o,p)=>(t(),s("div",c,[r(o.$slots,"default",{},void 0)]))}},l=a(_,[["__scopeId","data-v-5733b9fc"]]);export{l as B};
