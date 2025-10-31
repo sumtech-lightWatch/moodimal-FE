@@ -3,7 +3,7 @@
     <v-row no-gutters justify="center" class="mb-6">
       <v-col cols="12" class="text-center">
         <div class="page-title">Moodimal Archive</div>
-        <div class="page-subtitle">당신의 무디멀 여정을 돌아봐요</div>
+        <div class="page-subtitle">당신의 무디멀 여정을 돌아보세요</div>
       </v-col>
     </v-row>
     
@@ -178,81 +178,81 @@ const dialog = ref({
   okButton: null
 });
 
-// 카드 데이터
+// [수정] 카드 데이터 (title과 name 값 맞바꿈)
 const cardData = {
   1: {
-    title: '#예술가형',
-    name: '우울한 고양이',
+    title: '우울한 고양이', // '우울한 고양이'
+    name: '#예술가형',      // '#예술가형'
     description: '창밖을 바라보며 생각에 잠긴, 감수성 풍부한 고양이입니다.',
     date: '2025.10.28',
     image: card1
   },
   2: {
-    title: '#활력형',
-    name: '활기찬 펭귄',
+    title: '활기찬 펭귄',
+    name: '#활력형',
     description: '넘치는 에너지로 뒤뚱뒤뚱, 어디든 신나게 달려가는 펭귄입니다.',
     date: '2025.10.27',
     image: card2
   },
   3: {
-    title: '#차분형',
-    name: '고독한 늑대',
+    title: '고독한 늑대',
+    name: '#차분형',
     description: '무리에서 벗어나 홀로 달을 보며 사색을 즐기는 늑대입니다.',
     date: '2025.10.26',
     image: card3
   },
   4: {
-    title: '#예술가형',
-    name: '투명한 드래곤',
+    title: '투명한 드래곤',
+    name: '#예술가형',
     description: '신비로운 비늘을 가진, 남들에게 쉽게 보이지 않는 독특한 드래곤입니다.',
     date: '2025.10.25',
     image: card4
   },
   5: {
-    title: '#차분형',
-    name: '따분한 나무늘보',
+    title: '따분한 나무늘보',
+    name: '#차분형',
     description: '세상만사 여유롭게, 나른한 표정으로 하루를 보내는 나무늘보입니다.',
     date: '2025.10.24',
     image: card5
   },
   6: {
-    title: '#차분형',
-    name: '졸린 올빼미',
+    title: '졸린 올빼미',
+    name: '#차분형',
     description: '밤샘 비행으로 지쳤는지, 나뭇가지에서 꾸벅꾸벅 졸고 있습니다.',
     date: '2025.10.23',
     image: card6
   },
   7: {
-    title: '#활력형',
-    name: '궁금한 햄스터',
+    title: '궁금한 햄스터',
+    name: '#활력형',
     description: '해바라기씨보다 세상에 궁금한 것이 더 많은 호기심쟁이입니다.',
     date: '2025.10.22',
     image: card7
   },
   8: {
-    title: '#예술가형',
-    name: '허전한 다람쥐',
+    title: '허전한 다람쥐',
+    name: '#예술가형',
     description: '도토리를 다 먹어버린 걸까요? 어딘가 허전함을 느끼고 있습니다.',
     date: '2025.10.21',
     image: card8
   },
   9: { 
-    title: '#예술가형',
-    name: '괴짜 거북이',
+    title: '괴짜 거북이',
+    name: '#예술가형',
     description: '등껍질 위에 낙서를 잔뜩 해놓고 다니는 예술가 기질의 거북이입니다.',
     date: '2025.10.20',
     image: card9
   },
   10: { 
-    title: '#활력형',
-    name: '힙한 하마',
+    title: '힙한 하마',
+    name: '#활력형',
     description: '헤드폰을 끼고 로파이 음악을 들으며 쿨함을 시전하는 감성적 하마입니다.',
     date: '2025.10.19',
     image: card10
   },
   11: { 
-    title: '#차분형',
-    name: '침착한 침팬지',
+    title: '침착한 침팬지',
+    name: '#차분형',
     description: '어지러운 세상 속에서도 늘 한 걸음 뒤에서 상황을 지켜보는 침팬지입니다.',
     date: '2025.10.18',
     image: card11
