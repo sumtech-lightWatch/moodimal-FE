@@ -6,12 +6,12 @@
         <div class="page-subtitle">당신의 무디멀 여정을 돌아봐요</div>
       </v-col>
     </v-row>
-
+    
     <v-row no-gutters justify="center" class="mb-4 px-4">
       <v-text-field
         v-model="searchQuery"
         placeholder='태그를 검색해보세요'
-        variant="outlined" rounded="pill" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" item-color="#FF794C" 
+        variant="outlined" rounded="pill" bg-color="#FFFFFF" base-color="#FF794C" color="#FF794C" 
         density="comfortable"
         hide-details
         class="search-input"
@@ -20,6 +20,47 @@
           <v-icon color="#FF794C" size="24">mdi-magnify</v-icon>
         </template>
       </v-text-field>
+    </v-row>
+    
+    <v-row no-gutters justify="center" class="mb-8 | px-4">
+      <v-card 
+        class="stats-card"
+        variant="outlined" rounded="xl" bg-color="#FFFFFF" color="#FFCEBE"
+      >
+        <v-card-title class="stats-title">
+          10월의 당신은...
+        </v-card-title>
+        
+        <v-card-text class="pt-1 | pb-2 | pr-4 | pl-4">
+          
+          <v-row 
+            v-for="(stat, index) in statsData" 
+            :key="index" 
+            no-gutters 
+            class="align-item-center"
+          >
+            <v-col cols="auto" class="pr-2 | mb-2">
+              <div class="stat-label-box">
+                <span class="stat-label">{{ stat.label }}</span>
+              </div>
+            </v-col>
+
+            <v-col>
+              <v-progress-linear
+                :model-value="stat.percentage"
+                color="#CCCCCC"
+                height="10"
+                rounded="lg"
+              ></v-progress-linear>
+              
+              <div class="stat-percentage">
+                {{ stat.percentage }}%
+              </div>
+            </v-col>
+          </v-row>
+
+        </v-card-text>
+      </v-card>
     </v-row>
 
     <v-row no-gutters class="px-4">
@@ -119,6 +160,13 @@ import card10 from '@/assets/card_10.png';
 import card11 from '@/assets/card_11.png';
 
 const emit = defineEmits(['restart-analyze']);
+
+const statsData = ref([
+  { label: '행복', percentage: 70 },
+  { label: '평온', percentage: 40 },
+  { label: '우울', percentage: 25 },
+  { label: '위험', percentage: 15 }
+]);
 
 // 검색어
 const searchQuery = ref('');
@@ -362,5 +410,47 @@ function openDialog(title, text, onConfirm = null) {
   text-align: center;
   padding-left: 0;
   text-transform: none;
+}
+
+/* 통계 카드 */
+.align-item-center {
+  align-items: center;
+  align-content: center;
+}
+
+.stats-card {
+  width: 100%;
+  background-color: #FFFFFF;
+}
+
+.stats-title {
+  color: #000000;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  padding: 16px 16px 8px 16px;
+}
+
+.stat-label-box {
+  background: #FF794C;
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.stat-label {
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+
+/* [유지] 통계 퍼센트 수치 스타일 */
+.stat-percentage {
+  font-size: 12px;
+  font-weight: 500;
+  color: #666666;
+  text-align: right; 
+  width: 100%; 
+  margin-top: 2px; 
 }
 </style>

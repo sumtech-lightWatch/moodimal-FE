@@ -52,7 +52,7 @@
         color="#FFFFFF" rounded="xl" width="100%"
         class="w-text-btn"
       >
-        다른 무디멀 구경하기
+        나의 무디멀 모아보기
       </v-btn>
     </v-row>
 

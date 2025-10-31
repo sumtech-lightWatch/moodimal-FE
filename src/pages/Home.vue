@@ -60,7 +60,7 @@
         variant="outline" color="#FF794C" rounded="xl" size="large" width="80%" height="32px"
         class="text-small-btn"
       >
-        다른 무디멀 구경하기
+        나의 무디멀 모아보기
       </v-btn>
     </v-row>
   </v-container>
