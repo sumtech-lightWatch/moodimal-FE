@@ -22,7 +22,6 @@
             class="card | floating-card"
             :style="{ animationDelay: `${i * 0.8}s`, animationDuration: `${5 + i}s` }"
             elevation="8"
-            rounded="xl"
           >
             <img :src="cards[i-1]" alt="" class="card-img" />
           </v-card>
