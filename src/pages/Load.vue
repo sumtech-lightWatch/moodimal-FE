@@ -138,15 +138,15 @@ onMounted(async () => {
   // (4) OCR 결과 텍스트 불러오기
   const text = getOcrTextFromLocalStorage();
 
-  // OCR 텍스트가 비어있는지 확인
-  if (!text) {
-    console.error('[Load] OCR 텍스트가 비어있습니다.');
-    openDialog('오류', '이미지에서 텍스트를 추출하지 못했습니다. 다른 이미지로 시도해주세요.', () => {
-      dialog.value.dialogActive = false;
-      router.push('/');
-    });
-    return; // onMounted 중단
-  }
+  // // OCR 텍스트가 비어있는지 확인
+  // if (!text) {
+  //   console.error('[Load] OCR 텍스트가 비어있습니다.');
+  //   openDialog('오류', '이미지에서 텍스트를 추출하지 못했습니다. 다른 이미지로 시도해주세요.', () => {
+  //     dialog.value.dialogActive = false;
+  //     router.push('/');
+  //   });
+  //   return; // onMounted 중단
+  // }
 
   // [수정됨] (5) LLM 분석 호출 -> .then() 체이닝 시작
   generateLLMAnalyze(text)
