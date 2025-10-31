@@ -162,10 +162,9 @@ import card11 from '@/assets/card_11.png';
 const emit = defineEmits(['restart-analyze']);
 
 const statsData = ref([
-  { label: '행복', percentage: 70 },
-  { label: '평온', percentage: 40 },
-  { label: '우울', percentage: 25 },
-  { label: '위험', percentage: 15 }
+  { label: '예술가형', percentage: 36 },
+  { label: '차분형', percentage: 36 },
+  { label: '활력형', percentage: 27 }
 ]);
 
 // 검색어
